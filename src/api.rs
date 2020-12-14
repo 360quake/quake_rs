@@ -37,13 +37,14 @@ impl ApiKey{
 
     // 检测API KEY 是否可用
     fn check_api(apikey:String) -> bool{
+        let (local, one_years_ago) = Quake::getdate();
         let s = Service{
             query: String::from("ip:192.185.144.54"),
             start: 1,
             size: 1,
             ignore_cache: false,
-            start_time: "2019-11-26 00:00:00".to_string(),
-            end_time: "2020-11-26 00:00:00".to_string()
+            start_time: one_years_ago,
+            end_time: local
         };
         let res = match Quake::new(apikey).search(&s) {
             Ok(_) => {

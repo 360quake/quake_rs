@@ -324,7 +324,7 @@ pub mod quake {
         }
 
         // TODO: Comment
-        fn getdate()->(String, String){
+        pub(crate) fn getdate() ->(String, String){
             let local = Local::now();
             let one_years_ago = local - Duration::days(365);
             (local.format("%Y-%m-%d %H:%M:%S"). to_string(), one_years_ago.format("%Y-%m-%d %H:%M:%S").to_string())
