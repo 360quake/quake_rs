@@ -107,7 +107,7 @@ OPTIONS:
 ARGS:
     <ip>     View all available information for an IP address
 ```
-可以快速查询某个IP或IP段下开发的端口和服务。start/size参数支持翻页，-o/--output支持将搜索结果保存至文件。
+可以快速查询某个IP或IP段下开放的端口和服务。start/size参数支持翻页，-o/--output支持将搜索结果保存至文件。
 
 ##### Example：
 ```bash
@@ -183,7 +183,7 @@ OPTIONS:
 ARGS:
     <query_string>    Quake Querystring
 ```
-搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并且高亮显示。
+搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
 
 ##### Example：
 ```bash
@@ -203,7 +203,7 @@ ARGS:
 23.28.247.211   443     Outlook Web App
 182.93.16.236   443     Outlook Web App
 ```
-正则表达式可以灵活运用，匹配你相匹配的任何数据。
+正则表达式可以灵活运用，匹配想匹配的任何数据。
 正则匹配exchange内部版本。
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:47:32 PM]─[G:master=]
