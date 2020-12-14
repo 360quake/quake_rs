@@ -49,7 +49,8 @@ ARGS:
 ```
 域名查询可以查询某个域名的子域名和相似域名，或者域名周含有某些关键子的域名，如：oa、vpn等，可以设置start和size参数进行翻页，可以使用-o/--output，将查询结果保存至文件。
 -t参数可以控制显示的字段，有domain、ip、端口和站点title等。
-Example：
+
+##### Example：
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:33:10 PM]─[G:master=]
 ╰─>$ ./quake domain 360.cn --start 10 --size 10
@@ -108,7 +109,7 @@ ARGS:
 ```
 可以快速查询某个IP或IP段下开发的端口和服务。start/size参数支持翻页，-o/--output支持将搜索结果保存至文件。
 
-Example：
+##### Example：
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:35:51 PM]─[G:master=]
 ╰─>$ ./quake host 5.188.34.101
@@ -183,7 +184,8 @@ ARGS:
     <query_string>    Quake Querystring
 ```
 搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并且高亮显示。
-Example：
+
+##### Example：
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:47:10 PM]─[G:master=]
 ╰─>$ ./quake search 'app:"exchange 2010"' -t ip,port,title
