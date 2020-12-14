@@ -3,7 +3,7 @@
 ## 安装
 ```
 // 安装rust
-cargo build --release
+cargo  build --release
 ```
 ## 使用方法
 ```bash
