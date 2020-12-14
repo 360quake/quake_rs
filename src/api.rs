@@ -15,7 +15,7 @@ impl ApiKey{
     pub fn init(api_key: String){
         // write api key
         if Self::set_api(api_key){
-            Output::info("Successfully initialized");
+            Output::success("Successfully initialized");
         }else {
             Output::error("Error: Invalid API key");
         }
