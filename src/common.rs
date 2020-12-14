@@ -193,7 +193,7 @@ impl ArgParse{
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
                 let query = &format!("domain:\"*.{}\"", domain);
-                let data_type= domain_match.value_of("type").unwrap_or("domain,ip").
+                let data_type= domain_match.value_of("type").unwrap_or("ip,domain").
                     split(",").collect::<Vec<&str>>();
                 let response = Quake::query(query, start, size);
 
