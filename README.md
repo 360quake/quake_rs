@@ -228,3 +228,23 @@ ARGS:
 23.28.247.211   443     Outlook Web App X-OWA-Version: 14.3.409.0
 182.93.16.236   443     Outlook Web App X-OWA-Version: 14.3.487.0
 ```
+
+```
+┬─[kali@kali:~/q/t/release]─[02:06:45 AM]─[G:master=]
+╰─>$ ./quake search 'response:"CobaltStrike Beacon configurations"' -t ip,port,title -f "C2 Server: (.*)"
+[+] Search with response:"CobaltStrike Beacon configurations"
+[+] Successful.
+[+] count: 10   total: 4424
+155.94.135.156  8080            C2 Server: 204.44.85.4,/pixel.gif
+124.70.1.140    8081            C2 Server: 124.70.1.140,/dpixel
+47.101.147.201  8080            C2 Server: 47.101.147.201,/updates.rss
+47.104.108.112  8080            C2 Server: 47.104.108.112,/j.ad
+39.100.147.159  8080            C2 Server: 39.100.147.159,/__utm.gif
+18.166.76.239   8080            C2 Server: 18.166.76.239,/visit.js
+49.233.155.141  7001            C2 Server: 49.233.155.141,/ca
+47.56.224.63    8888            C2 Server: 47.56.224.63,/updates
+47.75.55.181    8443            C2 Server: 47.75.55.181,/fwlink
+34.97.55.204    8080            C2 Server: 34.97.55.204,/pixel
+```
+
+
