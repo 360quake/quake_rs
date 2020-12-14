@@ -1,4 +1,10 @@
 # Quake Command-Line Application
+
+## 安装
+```
+// 安装rust
+cargo build --release
+```
 ## 使用方法
 ```bash
 Quake Command-Line Application 0.1.0
