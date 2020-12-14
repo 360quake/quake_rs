@@ -112,7 +112,7 @@ impl ArgParse{
                             .short("t")
                             .long("type")
                             .value_name("TYPE")
-                            .help("Fields displayed:domain,ip,port,title. (Default domain, ip)")
+                            .help("Fields displayed:ip,port,title,country,province,city,owner,. (Default ip,port)")
                     )
                     .arg(
                         Arg::with_name("filter")
@@ -270,7 +270,6 @@ impl ArgParse{
                         std::process::exit(0);
                     }
                 };
-                // save to file
                 // save to file.
                 match Quake::save_search_data(output, response, filter, data_type){
                     Ok(count) =>{
