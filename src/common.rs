@@ -33,7 +33,7 @@ pub struct ArgParse;
 impl ArgParse{
     pub fn parse(){
         let matches = App::new("Quake Command-Line Application")
-            .version("0.1.0")
+            .version("1.0.1")
             .author("Author: soap  <imelloit@gmail.com>")
             .about("Dose awesome things.")
             .subcommand(
