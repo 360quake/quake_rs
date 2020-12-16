@@ -1,8 +1,12 @@
 # Quake Command-Line Application
 
-## 安装
+## 下载 OR 安装
+下载：https://github.com/360quake/quake_rs/releases/tag/1.0.1
+
+安装：
+
 ```
-// 安装rust
+// 安装rust后使用cargo编译
 cargo  build --release
 ```
 ## 使用方法
@@ -26,6 +30,9 @@ SUBCOMMANDS:
     search    Search the Quake database
 ```
 #### 1. 初始化
+
+*ApiKey请到Quake个人中心查看*
+
 ```bash
 quake init apikey
 ```
@@ -189,7 +196,7 @@ OPTIONS:
 ARGS:
     <query_string>    Quake Querystring
 ```
-搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
+搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
 
 ##### Example：
 ```bash
