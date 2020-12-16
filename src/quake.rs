@@ -161,6 +161,7 @@ pub mod quake {
                 let province = data_value["location"]["province_cn"].as_str().unwrap_or("");
                 let city = data_value["location"]["city_cn"].as_str().unwrap_or("");
                 let owner = data_value["location"]["owner"].as_str().unwrap_or("");
+                let time = data_value["time"].as_str().unwrap_or("");
                 let mut regex_data = String::new();
                 if filter != ""{
                     let cert = data_value["service"]["cert"].as_str().unwrap_or("");
@@ -198,6 +199,9 @@ pub mod quake {
                     }
                     if data == &"owner"{
                         f.push_str(&format!("{}\t", owner));
+                    }
+                    if data == &"time"{
+                        f.push_str(&format!("{}\t", time));
                     }
                 }
                 // f.push_str(Red.bold().paint(regex_res).to_string().as_str());
