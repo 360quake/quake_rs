@@ -1,6 +1,6 @@
 [package]
 name = "quake"
-version = "0.1.0"
+version = "1.0.1"
 authors = ["imelloit <imelloit@gmail.com>"]
 edition = "2018"
 
