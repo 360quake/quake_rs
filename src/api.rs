@@ -32,7 +32,7 @@ impl ApiKey{
     fn check_api(apikey:String) -> bool{
         let (local, one_years_ago) = Quake::getdate();
         let s = Service{
-            query: String::from("ip:192.185.144.54"),
+            query: String::from("port:80"),
             start: 1,
             size: 1,
             ignore_cache: false,
