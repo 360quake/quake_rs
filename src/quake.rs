@@ -320,6 +320,87 @@ pub mod quake {
             Ok(count)
         }
 
+        // Interface for obtaining user information
+        // https://quake.360.cn/quake/#/help?id=5fdb2a58dd0705216cbaa480&title=%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%8E%A5%E5%8F%A3
+        // URL: https://quake.360.cn/api/v3/user/info
+        // Parameters: None
+        // Method: GET
+        // Return: Result<Value, serde_json::Error>
+        fn info(&self) ->Result<Value, serde_json::Error>{
+            let mut url:String = String::new();
+            url.push_str(BASE_URL);
+            url.push_str("/api/v3/user/info");
+            let clinet = reqwest::blocking::Client::new();
+            let resp = match clinet.get(&url).headers(self.header()).send(){
+                Ok(resp) => resp,
+                Err(e)  => {
+                    if e.is_timeout(){
+                        Output::error("Connect Timeout!!");
+                    }else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            let res = resp.text().unwrap();
+            let response:Value = serde_json::from_str(&res)?;
+            // TODO: Comment
+            let code = response["code"].as_i64().unwrap() as i32;
+            let message = response["message"].as_str().unwrap();
+            if code != 0{
+                Output::error(&format!("Query failed: {}", message));
+                std::process::exit(1);
+            }
+            Ok(response)
+        }
+
+        // TODO:Comment
+        pub fn show_info(){
+            let res:String = match ApiKey::get_api(){
+                Ok(res) => res,
+                Err(e) =>{
+                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            let info = match Quake::new(res).info(){
+                Ok(value) => value,
+                Err(e) =>{
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            let code = info["code"].as_i64().unwrap_or(-1) as i32;
+            let message = info["message"].as_str().unwrap();
+            let data = info["data"].as_object().unwrap();
+            if code == 0{
+                let credit = data["credit"].as_i64().unwrap_or(0);
+                let persistent_credit = data["persistent_credit"].as_i64().unwrap_or(0);
+                let username = data["user"]["username"].as_str().unwrap_or("无");
+                let email = data["user"]["email"].as_str().unwrap_or("无");
+                let mobile_phone = data["mobile_phone"].as_str().unwrap_or("无");
+                let role = data["role"].as_array().unwrap();
+                let mut role_info = String::new();
+                Output::success("Successful.");
+                Output::info(&format!("用户名:  {}", username));
+                Output::info(&format!("邮  箱:  {}", email));
+                Output::info(&format!("手  机:  {}", mobile_phone));
+                Output::info(&format!("月度积分: {}", credit));
+                Output::info(&format!("长效积分: {}", persistent_credit));
+                for r in role{
+                    let r = r["fullname"].as_str().unwrap_or("");
+                    role_info.push_str(r);
+                    role_info.push_str(",");
+                }
+                role_info.remove(role_info.len() - 1);
+                Output::info(&format!("角  色:  {}", role_info));
+
+            }else {
+                Output::error(message);
+            }
+
+        }
+
         // TODO: Comment
         fn header(&self) -> HeaderMap {
             let mut header = HeaderMap::new();
