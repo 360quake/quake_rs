@@ -28,13 +28,6 @@ impl ApiKey{
         path
     }
 
-    // 检测API路径
-    fn check_path() -> bool{
-        let mut path = Self::get_path();
-        path.push_str("api_key");
-        Path::new(path.as_str()).exists()
-    }
-
     // 检测API KEY 是否可用
     fn check_api(apikey:String) -> bool{
         let (local, one_years_ago) = Quake::getdate();
@@ -87,13 +80,9 @@ impl ApiKey{
     // 获取API KEY
     pub fn get_api() -> Result<String, io::Error>{
         let res;
-        if Self::check_path(){
-            let mut path = Self::get_path();
-            path.push_str("api_key");
-            res = fs::read_to_string(path)?;
-        }else {
-           res = "".to_string();
-        }
+        let mut path = Self::get_path();
+        path.push_str("api_key");
+        res = fs::read_to_string(path)?;
         Ok(res)
     }
 }
