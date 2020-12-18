@@ -356,7 +356,7 @@ pub mod quake {
 
         // TODO:Comment
         pub fn show_info(){
-            let res:String = match ApiKey::get_api(){
+            let res = match ApiKey::get_api(){
                 Ok(res) => res,
                 Err(e) =>{
                     Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
