@@ -46,10 +46,10 @@ impl ArgParse{
                             .help("Initialize the Quake command-line")
                     )
             )
-            // .subcommand(
-            //     SubCommand::with_name("info")
-            //         .about("Shows general information about your account")
-            // )
+            .subcommand(
+                SubCommand::with_name("info")
+                    .about("Shows general information about your account")
+            )
             .subcommand(
                 SubCommand::with_name("host")
                     .about("View all available information for an IP address")
@@ -280,6 +280,9 @@ impl ArgParse{
                     }
                 };
 
+            },
+            ("info", Some(_)) =>{
+                Quake::show_info();
             },
             _ => {}
         }
