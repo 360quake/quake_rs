@@ -4,7 +4,7 @@ pub mod quake {
     // use log::{debug, error, info};
     use reqwest::header::{HeaderMap, HeaderValue};
     use serde_json::Value;
-    use crate::common::{Service, Output, Host};
+    use crate::common::{Service, Output, Host, AggService};
     use crate::api::ApiKey;
     use std::fs::OpenOptions;
     use std::io::Write;
@@ -320,13 +320,67 @@ pub mod quake {
             Ok(count)
         }
 
+        // TODO: COmment
+        fn aggservice(&self, agg:&AggService) -> Result<Value, serde_json::Error>{
+            let mut url = String::new();
+            url.push_str(BASE_URL);
+            url.push_str("/api/v3/aggregation/quake_service");
+            let client = reqwest::blocking::Client::new();
+            let resp = match client.post(&url).headers(self.header()).json(&agg).send(){
+                Ok(resp) => resp,
+                Err(e) =>{
+                    if e.is_timeout(){
+                        Output::error("Connect Timeout!!");
+                    }else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            let res = resp.text().unwrap();
+            let response:Value = serde_json::from_str(&res)?;
+            // TODO: Comment
+            let code = response["code"].as_i64().unwrap() as i32;
+            let message = response["message"].as_str().unwrap();
+            if code != 0{
+                Output::error(&format!("Query failed: {}", message));
+                std::process::exit(1);
+            }
+            Ok(response)
+        }
+
         pub fn honeypot(ip:String){
-            let mut query = String::from("type: \"蜜罐(honeypot)\" AND ip:");
+            Output::info(&format!("Search with {}", ip));
+            let mut query = String::from("app: \"*蜜罐*\" AND ip:");
             query += &ip;
-            let response = Self::query(query.as_str(), 0, 10);
-            let total =  response["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
-            if total >0{
-                Output::error("Looks like a honeypot system!");
+            let res= match ApiKey::get_api(){
+                Ok(res) => res,
+                Err(e) =>{
+                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            // TODO: Comment
+            let s = AggService{
+                query,
+                start: 0,
+                size: 5,
+                ignore_cache: false,
+                aggregation_list: vec![String::from("app")]
+            };
+            let response:Value = match Quake::new(res).aggservice(&s) {
+                Ok(response) => response,
+                Err(e) =>{
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            let app = response["data"]["app"].as_array().unwrap();
+            if app.len() >0{
+                let app_name = app[0].as_object().unwrap();
+                let honeypot = app_name["key"].as_str().unwrap().replace("蜜罐", "")
+                    .replace("\"", "");
+                Output::error(&format!("Looks like a {} honeypot system! ", honeypot));
             }else {
                 Output::success("Looks like a real system!");
             }
