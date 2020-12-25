@@ -33,7 +33,7 @@ pub struct ArgParse;
 impl ArgParse{
     pub fn parse(){
         let matches = App::new("Quake Command-Line Application")
-            .version("1.0.1")
+            .version("1.0.2")
             .author("Author: soap  <imelloit@gmail.com>")
             .about("Dose awesome things.")
             .subcommand(
@@ -165,10 +165,17 @@ impl ArgParse{
                     )
                     .setting(AppSettings::ArgRequiredElseHelp)
             )
-            // .subcommand(
-            //     SubCommand::with_name("honeyscore")
-            //         .about("Check whether the IP is a honeypot or not.")
-            // )
+            .subcommand(
+                SubCommand::with_name("honeypot")
+                    .about("Check whether the IP is a honeypot or not.")
+                    .arg(
+                        Arg::with_name("ip")
+                            .index(1)
+                            .value_name("ip")
+                            .help("The ip address to be queried.")
+                    )
+                    .setting(AppSettings::ArgRequiredElseHelp)
+            )
             .setting(AppSettings::ArgRequiredElseHelp)
             .get_matches();
 
@@ -250,7 +257,7 @@ impl ArgParse{
                 let query = match search_match.value_of("query_string"){
                     Some(query) => query,
                     None => {
-                        Output::error("Error: You must choose a ip or cidr.\r\nPlease execute -h for help.");
+                        Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
                         std::process::exit(1);
                     },
                 };
@@ -283,6 +290,16 @@ impl ArgParse{
             },
             ("info", Some(_)) =>{
                 Quake::show_info();
+            },
+            ("honeypot", Some(honeypot_match)) =>{
+                let ip = match honeypot_match.value_of("ip"){
+                    Some(query) => query,
+                    None => {
+                        Output::error("Error: You must choose a ip.\r\nPlease execute -h for help.");
+                        std::process::exit(1);
+                    },
+                };
+                Quake::honeypot(ip.to_string());
             },
             _ => {}
         }
