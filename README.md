@@ -1,15 +1,18 @@
 # Quake Command-Line Application
 
 ## 安装
-下载：https://github.com/360quake/quake_rs/releases/tag/1.0.2
 
-或者本地编译：
+1. 直接下载即可使用
 
-```
-// 安装rust后使用cargo编译
-cargo  build --release
-```
+    https://github.com/360quake/quake_rs/releases/tag/1.0.2
 
+2. 或者本地编译：
+    
+    ```
+    // 安装rust后使用cargo编译
+    cargo  build --release
+    ```
+   
 ## 更新日志
 * 2020-12-25 v1.0.2 : 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
