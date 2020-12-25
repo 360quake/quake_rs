@@ -28,6 +28,18 @@ pub struct Host{
     pub ignore_cache:   bool,
 }
 
+/*
+  TODO: Comment
+*/
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AggService{
+    pub query:          String,
+    pub start:          i32,
+    pub size:           i32,
+    pub ignore_cache:   bool,
+    pub aggregation_list: Vec<String>
+}
+
 pub struct ArgParse;
 
 impl ArgParse{
