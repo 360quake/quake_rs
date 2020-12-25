@@ -320,6 +320,18 @@ pub mod quake {
             Ok(count)
         }
 
+        pub fn honeypot(ip:String){
+            let mut query = String::from("type: \"蜜罐(honeypot)\" AND ip:");
+            query += &ip;
+            let response = Self::query(query.as_str(), 0, 10);
+            let total =  response["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
+            if total >0{
+                Output::error("Looks like a honeypot system!");
+            }else {
+                Output::success("Looks like a real system!");
+            }
+        }
+
         // Interface for obtaining user information
         // https://quake.360.cn/quake/#/help?id=5fdb2a58dd0705216cbaa480&title=%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E6%8E%A5%E5%8F%A3
         // URL: https://quake.360.cn/api/v3/user/info
