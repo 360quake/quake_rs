@@ -1,9 +1,9 @@
 # Quake Command-Line Application
 
-## 下载 OR 安装
+## 安装
 下载：https://github.com/360quake/quake_rs/releases/tag/1.0.2
 
-安装：
+或者本地编译：
 
 ```
 // 安装rust后使用cargo编译
