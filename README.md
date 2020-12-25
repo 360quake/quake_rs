@@ -1,7 +1,7 @@
 # Quake Command-Line Application
 
 ## 下载 OR 安装
-下载：https://github.com/360quake/quake_rs/releases/tag/1.0.1
+下载：https://github.com/360quake/quake_rs/releases/tag/1.0.2
 
 安装：
 
@@ -9,6 +9,11 @@
 // 安装rust后使用cargo编译
 cargo  build --release
 ```
+
+## 更新日志
+* 2020-12-25 v1.0.2 : 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
+
+
 ## 使用方法
 ```bash
 Quake Command-Line Application 1.0.2
@@ -278,8 +283,3 @@ ARGS:
 [+] Search with 93.89.146.23
 [!] Looks like a Kojoney SSH  honeypot system!
 ```
-
-
-## 更新日志
-* 2020-12-25 v1.0.2 : 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
-
