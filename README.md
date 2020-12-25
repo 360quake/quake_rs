@@ -11,7 +11,7 @@ cargo  build --release
 ```
 ## 使用方法
 ```bash
-Quake Command-Line Application 0.1.0
+Quake Command-Line Application 1.0.2
 Author: soap  <imelloit@gmail.com>
 Dose awesome things.
 
@@ -23,11 +23,13 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    domain    View all available information for a domain.
-    help      Prints this message or the help of the given subcommand(s)
-    host      View all available information for an IP address
-    init      Initialize the Quake command-line
-    search    Search the Quake database
+    domain      View all available information for a domain.
+    help        Prints this message or the help of the given subcommand(s)
+    honeypot    Check whether the IP is a honeypot or not.
+    host        View all available information for an IP address
+    info        Shows general information about your account
+    init        Initialize the Quake command-line
+    search      Search the Quake database
 ```
 #### 1. 初始化
 
@@ -254,4 +256,30 @@ ARGS:
 34.97.55.204    8080            C2 Server: 34.97.55.204,/pixel
 ```
 
+#### 4. 用户信息
+可以查看用户信息
+```
+┬─[kali@kali:~]─[03:51:18 AM]
+╰─>$ quake info
+[+] Successful.
+[+] 用户名:  XXXX
+[+] 邮  箱:  user@example.com
+[+] 手  机:  +xx xxxxxxxxxxx
+[+] 月度积分: 3000
+[+] 长效积分: 3000
+[+] 角  色:  注册用户
+```
+
+#### 5. 蜜罐识别
+可以识别部分蜜罐系统。
+```
+┬─[kali@kali:~]─[04:40:00 AM]
+╰─>$ quake honeypot 93.89.146.23
+[+] Search with 93.89.146.23
+[!] Looks like a Kojoney SSH  honeypot system!
+```
+
+
+## 更新日志
+* 2020-12-25 v1.0.2 : 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
