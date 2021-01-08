@@ -4,7 +4,7 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/tag/1.0.2
+    https://github.com/360quake/quake_rs/releases/tag/1.0.3
 
 2. 或者本地编译：
     
@@ -14,6 +14,7 @@
     ```
    
 ## 更新日志
+* 2021-01-07 v1.0.3: 修复init命令bug，新增证书域名提取。
 * 2020-12-25 v1.0.2 : 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
 
