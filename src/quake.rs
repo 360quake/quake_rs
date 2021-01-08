@@ -162,6 +162,11 @@ pub mod quake {
                 let city = data_value["location"]["city_cn"].as_str().unwrap_or("");
                 let owner = data_value["location"]["owner"].as_str().unwrap_or("");
                 let time = data_value["time"].as_str().unwrap_or("");
+                let ssl:&str = match data_value["service"]["tls"]["server_certificates"]
+                    ["certificate"]["parsed"]["subject"]["common_name"].as_array(){
+                    Some(ssl) => ssl[0].as_str().unwrap_or(""),
+                    None => ""
+                };
                 let mut regex_data = String::new();
                 if filter != ""{
                     let cert = data_value["service"]["cert"].as_str().unwrap_or("");
@@ -202,6 +207,9 @@ pub mod quake {
                     }
                     if data == &"time"{
                         f.push_str(&format!("{}\t", time));
+                    }
+                    if data == &"ssldomain"{
+                        f.push_str(&format!("{}\t", ssl))
                     }
                 }
                 // f.push_str(Red.bold().paint(regex_res).to_string().as_str());
