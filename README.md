@@ -201,12 +201,12 @@ OPTIONS:
     -o, --output <FILENAME>    Save the host information in the given file (append if file exists).
         --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
         --start <NUMBER>       Starting position of the query (Default 0).
-    -t, --type <TYPE>          Fields displayed:ip,port,title,country,province,city,owner. (Default ip,port)
+    -t, --type <TYPE>          Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain. (Default ip,port)
 
 ARGS:
     <query_string>    Quake Querystring
 ```
-搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
+搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
 
 ##### Example：
 ```bash
@@ -226,6 +226,26 @@ ARGS:
 23.28.247.211   443     Outlook Web App
 182.93.16.236   443     Outlook Web App
 ```
+查看ssl证书种的域名。
+
+```bash
+┬─[kali@kali:~/quake_rs]─[02:29:15 AM]─[G:master=]
+╰─>$ quake search 'app:"Exchange邮件服务器" AND port:443' -t ip,port,ssldomain
+[+] Search with app:"Exchange邮件服务器" AND port:443
+[+] Successful.
+[+] count: 10   total: 1802535
+192.67.33.101   443     mail.esolutionsgroup.ca
+136.243.51.125  443     mail.misotextile.com
+185.214.232.134 443     *.sued.cloud
+128.204.218.20  443     www.cfg.com.ua
+174.47.121.211  443     owa.dsb-cpa.com
+67.134.230.115  443     mymail.swlaw.com
+177.107.171.5   443     webmail.bottero.net
+12.24.24.202    443     mail.haaskennedy.com
+220.128.255.59  443     TWSRVEXCHANGE01.imlauto.com.tw
+77.94.137.35    443     m.iscar.si
+```
+
 正则表达式可以灵活运用，匹配想匹配的任何数据。
 正则匹配exchange内部版本。
 ```bash
