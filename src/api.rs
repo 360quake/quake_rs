@@ -23,8 +23,7 @@ impl ApiKey{
 
     // 获取API路径
     fn get_path() -> String{
-        let  mut path = dirs::home_dir().unwrap().as_path().to_str().unwrap().to_string();
-        path.push_str("/.config/quake/");
+        let  path = dirs::home_dir().unwrap().as_path().to_str().unwrap().to_string();
         path
     }
 
@@ -50,22 +49,29 @@ impl ApiKey{
 
     // 设置API KEY
     pub fn set_api(apikey: String) -> bool{
-        let path  = Self::get_path();
-        let path = Path::new(path.as_str());
-        if  !Path::exists(path){
-            match create_dir(path){
-                Ok(res) => res,
+        let mut path = Self::get_path();
+        path.push_str("/.config/");
+        if  !Path::exists(Path::new(path.as_str())){
+            match create_dir(Path::new(path.as_str())){
+                Ok(_) => {
+                    path.push_str("/quake/");
+                    match create_dir(Path::new(path.as_str())){
+                        Err(e) => {
+                            Output::error(&format!("Failed to create path:.config/quake/. {}", e.to_string()));
+                            std::process::exit(1);
+                        }
+                        _ => {}
+                    }
+                },
                 Err(e) => {
-                    Output::error(&format!("Failed to create path: {}", e.to_string()));
+                    Output::error(&format!("Failed to create path: .config/. {}", e.to_string()));
                     std::process::exit(1);
                 }
             }
         }
-        let mut  path = Self::get_path();
-        path.push_str("api_key");
+        path.push_str("/api_key");
         if Self::check_api(apikey.clone()){
-            let path = Path::new(path.as_str());
-            let mut file: File = match File::create(path){
+            let mut file: File = match File::create(Path::new(path.as_str())){
                 Ok(f) => f,
                 Err(e) => {
                     Output::error(&format!("File creation failure: {}", e.to_string()));
@@ -87,7 +93,7 @@ impl ApiKey{
     pub fn get_api() -> Result<String, io::Error>{
         let res;
         let mut path = Self::get_path();
-        path.push_str("api_key");
+        path.push_str("/.config/quake/api_key");
         res = fs::read_to_string(path)?;
         Ok(res)
     }
