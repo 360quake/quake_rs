@@ -49,29 +49,30 @@ impl ApiKey{
 
     // 设置API KEY
     pub fn set_api(apikey: String) -> bool{
-        let mut path = Self::get_path();
-        path.push_str("/.config/");
-        if  !Path::exists(Path::new(path.as_str())){
-            match create_dir(Path::new(path.as_str())){
-                Ok(_) => {
-                    path.push_str("quake/");
-                    match create_dir(Path::new(path.as_str())){
-                        Err(e) => {
-                            Output::error(&format!("Failed to create path:.config/quake/. {}", e.to_string()));
-                            std::process::exit(1);
-                        }
-                        _ => {}
-                    }
-                },
+        let path = Self::get_path();
+        let config_path = path.to_string().clone() + "/.config/";
+        let quake_path = path.to_string().clone() + "/.config/quake/";
+        let api_path = path.to_string().clone() + "/.config/quake/api_key";
+        if !Path::exists(Path::new(config_path.as_str())){
+            match create_dir(Path::new(config_path.as_str())){
                 Err(e) => {
                     Output::error(&format!("Failed to create path: .config/. {}", e.to_string()));
                     std::process::exit(1);
                 }
+                _ => {},
             }
         }
-        path.push_str("api_key");
+        if !Path::exists(Path::new(quake_path.as_str())){
+            match create_dir(Path::new(quake_path.as_str())){
+                Err(e) => {
+                    Output::error(&format!("Failed to create path:.config/quake/. {}", e.to_string()));
+                    std::process::exit(1);
+                }
+                _ => {}
+            }
+        }
         if Self::check_api(apikey.clone()){
-            let mut file: File = match File::create(Path::new(path.as_str())){
+            let mut file: File = match File::create(Path::new(api_path.as_str())){
                 Ok(f) => f,
                 Err(e) => {
                     Output::error(&format!("File creation failure: {}", e.to_string()));
