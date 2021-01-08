@@ -54,7 +54,7 @@ impl ApiKey{
         if  !Path::exists(Path::new(path.as_str())){
             match create_dir(Path::new(path.as_str())){
                 Ok(_) => {
-                    path.push_str("/quake/");
+                    path.push_str("quake/");
                     match create_dir(Path::new(path.as_str())){
                         Err(e) => {
                             Output::error(&format!("Failed to create path:.config/quake/. {}", e.to_string()));
@@ -69,7 +69,7 @@ impl ApiKey{
                 }
             }
         }
-        path.push_str("/api_key");
+        path.push_str("api_key");
         if Self::check_api(apikey.clone()){
             let mut file: File = match File::create(Path::new(path.as_str())){
                 Ok(f) => f,
