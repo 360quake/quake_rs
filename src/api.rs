@@ -53,7 +53,13 @@ impl ApiKey{
         let path  = Self::get_path();
         let path = Path::new(path.as_str());
         if  !Path::exists(path){
-            create_dir(path).unwrap();
+            match create_dir(path){
+                Ok(res) => res,
+                Err(e) => {
+                    Output::error(&format!("Failed to create path: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            }
         }
         let mut  path = Self::get_path();
         path.push_str("api_key");
