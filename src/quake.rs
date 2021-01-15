@@ -132,7 +132,17 @@ pub mod quake {
                     std::process::exit(1);
                 }
             };
-            let res = resp.text().unwrap();
+            let res = match resp.text() {
+                Ok(resp) => resp,
+                Err(e) =>{
+                    if e.is_timeout(){
+                        Output::error("Connect Timeout!!");
+                    }else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
             let response:Value = serde_json::from_str(&res)?;
             // TODO: Comment
             let code = response["code"].as_i64().unwrap() as i32;
