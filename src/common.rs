@@ -45,7 +45,7 @@ pub struct ArgParse;
 impl ArgParse{
     pub fn parse(){
         let matches = App::new("Quake Command-Line Application")
-            .version("1.0.3")
+            .version("1.0.4")
             .author("Author: soap  <imelloit@gmail.com>")
             .about("Dose awesome things.")
             .subcommand(
@@ -88,6 +88,13 @@ impl ArgParse{
                             .long("start")
                             .value_name("NUMBER")
                             .help("Starting position of the query (Default 0).")
+                    )
+                    .arg(
+                        Arg::with_name("type")
+                            .short("t")
+                            .long("type")
+                            .value_name("TYPE")
+                            .help("Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain. (Default ip,port)")
                     )
                     .setting(AppSettings::ArgRequiredElseHelp)
             )
@@ -173,7 +180,7 @@ impl ArgParse{
                             .short("t")
                             .long("type")
                             .value_name("TYPE")
-                            .help("Fields displayed:domain,ip,port,title. (Default domain, ip)")
+                            .help("Fields displayed:domain,ip,port,title. (Default domain, ip, port)")
                     )
                     .setting(AppSettings::ArgRequiredElseHelp)
             )
@@ -211,8 +218,8 @@ impl ArgParse{
                 if size > 100{
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
-                let query = &format!("domain:\"*.{}\"", domain);
-                let data_type= domain_match.value_of("type").unwrap_or("ip,domain").
+                let query = &format!("domain:*.{}", domain);
+                let data_type= domain_match.value_of("type").unwrap_or("ip,port,domain").
                     split(",").collect::<Vec<&str>>();
                 let response = Quake::query(query, start, size);
 

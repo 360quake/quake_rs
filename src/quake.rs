@@ -154,7 +154,7 @@ pub mod quake {
             let re = Regex::new(filter).unwrap();
             for i in 0..count{
                 let data_value = value["data"][i].as_object().unwrap();
-                let title = data_value["service"]["http"]["title"].as_str().unwrap_or("").replace("\"", "");
+                let title = data_value["service"]["http"]["title"].as_str().unwrap_or("").replace("\"", "").replace("\t", "").replace("\n","").replace("\r", "");
                 let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
                 let port = &data_value["port"];
                 let country = data_value["location"]["country_cn"].as_str().unwrap_or("");
@@ -235,13 +235,21 @@ pub mod quake {
                 // ip
                 let data = value["data"][i].take();
                 let ip = data["ip"].as_str().unwrap().replace("\"", "");
+                let location = data["location"].as_object().unwrap();
+                let country = location["country_en"].as_str().unwrap_or("");
+                let province = location["province_en"].as_str().unwrap_or("");
+                let city = location["city_en"].as_str().unwrap_or("");
                 let service = data["services"].as_array().unwrap();
                 let mut info = String::new();
-                info.push_str(&format!("IP: {}\n", ip));
+                info.push_str(&format!("IP: {}\tCountry: {}\tProcince: {}\tCity: {}\n",
+                                       ip, country, province, city));
+                info.push_str(&format!("{port}\t{protocol:>width$}\t{time:>width$}\n",
+                                       port="| Port", protocol="Protocol", time="time", width=20));
                 for s in service{
-                    info.push_str(&format!("|  {}\t{}\t{}\t{}\n", s["port"], s["name"].as_str().unwrap().replace("\"", ""),
-                                          s["product"].as_str().unwrap().replace("\"", ""),
-                                          s["version"].as_str().unwrap().replace("\"", "")));
+                    let protocol = s["name"].as_str().unwrap().replace("\"", "");
+                    let service_time = s["time"].as_str().unwrap().replace("\"", "").replace("unknown", "");
+                    info.push_str(&format!("| {port}\t{protocol:>width$}\t{time:>width$}\n",
+                                           port=s["port"], protocol=protocol, time=service_time, width=20));
                 }
                 info.push_str("\n");
                 if showdata{
@@ -263,7 +271,7 @@ pub mod quake {
                 for i in 0..count{
                     let data_value = value["data"][i].take();
                     let domain = data_value["service"]["http"]["host"].as_str().unwrap_or("").replace("\"", "");
-                    let title = data_value["service"]["http"]["title"].as_str().unwrap_or("").replace("\"", "");
+                    let title = data_value["service"]["http"]["title"].as_str().unwrap_or("").replace("\"", "").replace("\t", "").replace("\n","").replace("\r", "");
                     let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
                     let port = &data_value["port"];
                     let mut f = String::new();
