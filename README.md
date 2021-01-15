@@ -4,7 +4,7 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/tag/1.0.3
+    https://github.com/360quake/quake_rs/releases/tag/1.0.4
 
 2. 或者本地编译：
     
@@ -27,7 +27,7 @@
 
 ## 使用方法
 ```bash
-Quake Command-Line Application 1.0.2
+Quake Command-Line Application 1.0.4
 Author: soap  <imelloit@gmail.com>
 Dose awesome things.
 
