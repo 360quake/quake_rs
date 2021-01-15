@@ -142,52 +142,52 @@ ARGS:
 
 ##### Example：
 ```bash
-┬─[kali@kali:~/q/t/release]─[09:35:51 PM]─[G:master=]
+┬─[kali@kali:~/q/t/release]─[10:14:57 PM]─[G:master=]
 ╰─>$ ./quake host 5.188.34.101
 [+] Search with ip:5.188.34.101
 [+] Successful.
 [+] count: 1    total: 1
-IP: 5.188.34.101
-|  3306 mysql   MySQL
-|  8080 http
-|  80   http    Apache httpd    2.2.15
-|  25   smtp
-|  22   ssh     OpenSSH 5.3
+IP: 5.188.34.101        Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 3306                 mysql    2020-10-03T03:23:14.385Z
+| 8080                  http    2020-10-29T01:11:01.721Z
+| 80                    http    2020-10-30T16:19:33.698Z
+| 25                    smtp    2020-11-05T15:10:57.932Z
+| 22                     ssh    2020-12-11T03:02:01.624Z
 
-┬─[kali@kali:~/q/t/release]─[09:38:56 PM]─[G:master=]
-╰─>$ ./quake host 5.188.34.101/26
-[+] Search with ip:5.188.34.101/26
+┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
+╰─>$ ./quake host 5.188.34.101/24
+[+] Search with ip:5.188.34.101/24
 [+] Successful.
-[+] count: 10   total: 55
-IP: 5.188.34.98
-|  443  http/ssl        Apache httpd    2.2.15
-|  22   ssh     OpenSSH 5.3
-|  80   http    Apache httpd    2.2.15
-|  8080 http
-|  25   smtp
+[+] count: 10   total: 222
+IP: 5.188.34.203        Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 80                    http    2020-12-21T14:44:17.322Z
 
 
-IP: 5.188.34.111
-|  22   ssh     OpenSSH 7.4
-|  8083 http/ssl        nginx
-|  993  imap
-|  995  pop3
-|  5555 http
+IP: 5.188.34.17 Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 22                     ssh    2020-06-30T07:14:12.077Z
+| 111                rpcbind    2020-12-22T15:56:07.436Z
+| 123                    ntp    2020-12-24T12:53:05.514Z
 
 
-IP: 5.188.34.69
-|  443  http/ssl
-|  80   http
-|  21   ftp     Pure-FTPd
+IP: 5.188.34.41 Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 22                     ssh    2021-01-06T16:30:24.237Z
 
 
-IP: 5.188.34.109
-|  3306 mysql   MySQL   5.1.73
-|  80   http    nginx
-|  587  smtp    Exim smtpd      4.92.3
-|  53   dns
-|  25   smtp    Exim smtpd      4.92.3
+IP: 5.188.34.252        Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 995                   pop3    2020-12-14T21:23:37.832Z
+| 80                    auto    2020-12-21T22:42:56.926Z
 
+
+IP: 5.188.34.218        Country: Singapore      Procince: Singapore     City: Singapore
+| Port              Protocol                    time
+| 143                   imap    2020-12-17T02:45:47.230Z
+| 25                    smtp    2020-12-21T12:54:12.368Z
+| 3306                 mysql    2020-12-28T02:10:44.445Z
 ...
 ```
 #### 3. 搜索查询
