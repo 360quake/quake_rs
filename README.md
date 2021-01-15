@@ -101,7 +101,7 @@ ARGS:
 
 ┬─[kali@kali:~/q/t/release]─[09:33:19 PM]─[G:master=]
 ╰─>$ ./quake domain 360.cn --start 10 --size 10 -t ip,port,domain,title
-[+] Search with domain:"*.360.cn"
+[+] Search with domain:*.360.cn
 [+] Successful.
 [+] count: 10   total: 11586
 221.130.199.210 443     audit-s.scan.shouji.360.cn
