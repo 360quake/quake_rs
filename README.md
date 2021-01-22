@@ -4,7 +4,7 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/tag/1.0.4
+    https://github.com/360quake/quake_rs/releases/tag/1.0.5
 
 2. 或者本地编译：
     
@@ -14,6 +14,9 @@
     ```
    
 ## 更新日志
+* 2021-01-15 v1.0.4:
+    * 修复TLS解构解析不一致的问题。
+    * 修复命令行工具被杀软报毒问题。
 * 2021-01-15 v1.0.4:
     * 优化title显示，删除不可见字符。
     * host命令新增地理位置、设备信息和更新时间字段。
