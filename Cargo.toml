@@ -20,3 +20,5 @@ regex = "1"
 
 [profile.release]
 lto = true
+opt-level = 'z'
+codegen-units = 1
