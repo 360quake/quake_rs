@@ -201,7 +201,7 @@ pub mod quake {
                     Some(res) => res.as_str(),
                     None => ""
                 };
-                let mut f = String::new();
+                let mut f:String = String::new();
                 for data in data_type.iter_mut(){
                     if data == &"title"{
                         f.push_str(&format!("{}\t", title));
@@ -228,13 +228,16 @@ pub mod quake {
                         f.push_str(&format!("{}\t", time));
                     }
                     if data == &"domain"{
-                        f.push_str(&format!("{}\t", domain));
+                        if !ipaddress::IPAddress::is_valid(domain.clone()){
+                            f.push_str(&format!("{}\t", domain));
+                        }else {
+                            f.push_str(&format!("{}\t", ""));
+                        }
                     }
                     if data == &"ssldomain"{
                         f.push_str(&format!("{}\t", ssl))
                     }
                 }
-                // f.push_str(Red.bold().paint(regex_res).to_string().as_str());
                 if showdata{
                     print!("{}", f);
                     println!("{}", Red.bold().paint(regex_res).to_string().as_str());
