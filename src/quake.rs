@@ -263,7 +263,7 @@ pub mod quake {
                 let city = location["city_en"].as_str().unwrap_or("");
                 let service = data["services"].as_array().unwrap();
                 let mut info = String::new();
-                info.push_str(&format!("IP: {}\tCountry: {}\tProcince: {}\tCity: {}\n",
+                info.push_str(&format!("IP: {}\tCountry: {}\tProvince: {}\tCity: {}\n",
                                        ip, country, province, city));
                 info.push_str(&format!("{port}\t{protocol:>width$}\t{time:>width$}\n",
                                        port="| Port", protocol="Protocol", time="time", width=20));
