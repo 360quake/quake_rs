@@ -150,7 +150,7 @@ ARGS:
 [+] Search with ip:5.188.34.101
 [+] Successful.
 [+] count: 1    total: 1
-IP: 5.188.34.101        Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.101        Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 3306                 mysql    2020-10-03T03:23:14.385Z
 | 8080                  http    2020-10-29T01:11:01.721Z
@@ -163,30 +163,30 @@ IP: 5.188.34.101        Country: Singapore      Procince: Singapore     City: Si
 [+] Search with ip:5.188.34.101/24
 [+] Successful.
 [+] count: 10   total: 222
-IP: 5.188.34.203        Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.203        Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 80                    http    2020-12-21T14:44:17.322Z
 
 
-IP: 5.188.34.17 Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.17 Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 22                     ssh    2020-06-30T07:14:12.077Z
 | 111                rpcbind    2020-12-22T15:56:07.436Z
 | 123                    ntp    2020-12-24T12:53:05.514Z
 
 
-IP: 5.188.34.41 Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.41 Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 22                     ssh    2021-01-06T16:30:24.237Z
 
 
-IP: 5.188.34.252        Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.252        Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 995                   pop3    2020-12-14T21:23:37.832Z
 | 80                    auto    2020-12-21T22:42:56.926Z
 
 
-IP: 5.188.34.218        Country: Singapore      Procince: Singapore     City: Singapore
+IP: 5.188.34.218        Country: Singapore      Province: Singapore     City: Singapore
 | Port              Protocol                    time
 | 143                   imap    2020-12-17T02:45:47.230Z
 | 25                    smtp    2020-12-21T12:54:12.368Z
