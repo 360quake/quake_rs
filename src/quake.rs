@@ -165,6 +165,7 @@ pub mod quake {
             for i in 0..count{
                 let data_value = value["data"][i].as_object().unwrap();
                 let title = data_value["service"]["http"]["title"].as_str().unwrap_or("").replace("\"", "").replace("\t", "").replace("\n","").replace("\r", "");
+                let domain = data_value["service"]["http"]["host"].as_str().unwrap_or("").replace("\"", "").replace("\t", "").replace("\n","").replace("\r", "");
                 let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
                 let port = &data_value["port"];
                 let country = data_value["location"]["country_cn"].as_str().unwrap_or("");
@@ -225,6 +226,9 @@ pub mod quake {
                     }
                     if data == &"time"{
                         f.push_str(&format!("{}\t", time));
+                    }
+                    if data == &"domain"{
+                        f.push_str(&format!("{}\t", domain));
                     }
                     if data == &"ssldomain"{
                         f.push_str(&format!("{}\t", ssl))
