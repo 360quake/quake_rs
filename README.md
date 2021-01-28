@@ -14,7 +14,7 @@
     ```
    
 ## 更新日志
-* 2021-01-15 v1.0.4:
+* 2021-01-15 v1.0.5:
     * 修复TLS解构解析不一致的问题。
     * 修复命令行工具被杀软报毒问题。
 * 2021-01-15 v1.0.4:
@@ -212,7 +212,7 @@ OPTIONS:
     -o, --output <FILENAME>    Save the host information in the given file (append if file exists).
         --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
         --start <NUMBER>       Starting position of the query (Default 0).
-    -t, --type <TYPE>          Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain. (Default ip,port)
+    -t, --type <TYPE>          Fields displayed:ip,port,title,country,province,city,owner,time,domain,ssldomain. (Default ip,port)
 
 ARGS:
     <query_string>    Quake Querystring
