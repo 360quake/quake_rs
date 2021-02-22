@@ -174,7 +174,7 @@ pub mod quake {
                 let owner = data_value["location"]["owner"].as_str().unwrap_or("");
                 let time = data_value["time"].as_str().unwrap_or("");
                 let ssl:&str = match data_value["service"]["tls"]["server_certificates"]
-                    ["certificate"]["parsed"]["names"].as_array(){
+                    ["certificate"]["parsed"]["subject"]["common_name"].as_array(){
                     Some(ssl) =>{
                         ssl[0].as_str().unwrap_or("")
                     } ,
