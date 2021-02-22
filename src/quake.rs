@@ -179,7 +179,7 @@ pub mod quake {
                         ssl[0].as_str().unwrap_or("")
                     } ,
                     None => match data_value["service"]["tls"]["handshake_log"]["server_certificates"]
-                            ["certificate"]["parsed"]["names"].as_array(){
+                            ["certificate"]["parsed"]["subject"]["common_name"].as_array(){
                             Some(ssl) =>{
                                 ssl[0].as_str().unwrap_or("")
                             } ,
