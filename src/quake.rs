@@ -7,7 +7,7 @@ pub mod quake {
     use std::fs::OpenOptions;
     use std::io::Write;
     use std::{io, fs};
-    use chrono::{Local, Duration};
+    use chrono::{Local, Duration, NaiveDate};
     use regex::{Regex};
     use ansi_term::Colour::Red;
     use reqwest::blocking::Response;
@@ -99,7 +99,7 @@ pub mod quake {
                 s.start_time = time_start.to_string();
                 s.end_time = local;
             }else if time_start == "" && time_end != ""{
-                s.start_time = one_years_ago;
+                s.start_time = Self::getdate_for_manual(time_end);
                 s.end_time = time_end.to_string();
             }else if time_start != "" && time_end != ""{
                 s.start_time = time_start.to_string();
@@ -121,6 +121,7 @@ pub mod quake {
             }else {
                 Output::info(&format!("Search for {} IPs", s.ip_list.len()));
             }
+            Output::info(&format!("Data time again {} to {}.", s.start_time, s.end_time));
             let response:Value = match Quake::new(res).search(s) {
                 Ok(response) => response,
                 Err(e) =>{
@@ -536,7 +537,14 @@ pub mod quake {
             header
         }
 
+        // 获取指定时间，一年前的日期
+        pub(crate) fn getdate_for_manual(manual_date:&str)->String{
+            let manual_date = NaiveDate::parse_from_str(manual_date, "%Y-%m-%d").unwrap();
+            let one_years_ago= manual_date - Duration::days(365);
+            one_years_ago.format("%Y-%m-%d").to_string()
+        }
 
+        // 获取当前时间和当前时间一年前的时间
         pub(crate) fn getdate() ->(String, String){
             let local = Local::now();
             let one_years_ago = local - Duration::days(365);
