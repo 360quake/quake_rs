@@ -3,6 +3,7 @@ use clap::{App, Arg, SubCommand, AppSettings};
 use crate::api::ApiKey;
 use crate::quake::quake::Quake;
 use ansi_term::Colour::{Red, Green, Blue, Yellow};
+use serde_json::Value;
 
 /*
   TODO: Comment
@@ -15,6 +16,7 @@ pub struct Service{
     pub ignore_cache:   bool,
     pub start_time:     String,
     pub end_time:       String,
+    pub ip_list:        Vec<Value>,
 }
 
 /*
@@ -45,8 +47,8 @@ pub struct ArgParse;
 impl ArgParse{
     pub fn parse(){
         let matches = App::new("Quake Command-Line Application")
-            .version("1.0.5")
-            .author("Author: soap  <imelloit@gmail.com>")
+            .version("2.0.1")
+            .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand(
                 SubCommand::with_name("init")
@@ -108,6 +110,30 @@ impl ArgParse{
                             .help("Quake Querystring")
                     )
                     .arg(
+                        Arg::with_name("time_start")
+                            .short("s")
+                            .long("start_time")
+                            .help("Search start time\r\n\
+                            Example: quake search 'port:80' -s 2020-01-01")
+                            .value_name("TIME START")
+                    )
+                    .arg(
+                        Arg::with_name("time_end")
+                            .short("e")
+                            .long("end_time")
+                            .help("Search end time\r\n\
+                            Example: quake search 'port:80' -e 2020-01-01")
+                            .value_name("TIME END")
+                    )
+                    .arg(
+                        Arg::with_name("upload")
+                            .short("u")
+                            .long("upload")
+                            .help("Uploading *.txt files containing only IP addresses, with no more than 1000 IPs.\r\n\
+                            Example: quake search -u ips.txt")
+                            .value_name("IP File")
+                    )
+                    .arg(
                         Arg::with_name("output")
                             .short("o")
                             .long("output")
@@ -138,7 +164,8 @@ impl ArgParse{
                             .short("f")
                             .long("filter")
                             .value_name("TYPE")
-                            .help("Filter")
+                            .help("Filter search results with more regular expressions.\r\n\
+                            Example: quake search 'app:\"exchange 2010\"' -t ip,port,title -f \"X-OWA-Version: (.*)\"")
                     )
             )
             .subcommand(
@@ -198,7 +225,7 @@ impl ArgParse{
             .setting(AppSettings::ArgRequiredElseHelp)
             .get_matches();
 
-        // TODO: Comment
+
         match matches.subcommand(){
             ("init", Some(init_match)) =>{
                 if let Some(api_key) = init_match.value_of("Api_Key"){
@@ -221,7 +248,7 @@ impl ArgParse{
                 let query = &format!("domain:*.{}", domain);
                 let data_type= domain_match.value_of("type").unwrap_or("ip,port,domain").
                     split(",").collect::<Vec<&str>>();
-                let response = Quake::query(query, start, size);
+                let response = Quake::query(query, "", start, size, "", "");
 
                 let output = match domain_match.value_of("output") {
                     Some(name) => name,
@@ -273,22 +300,32 @@ impl ArgParse{
                 };
             },
             ("search", Some(search_match)) =>{
+                let upload = match search_match.value_of("upload"){
+                    Some(file_name) => file_name,
+                    None => ""
+                };
                 let query = match search_match.value_of("query_string"){
                     Some(query) => query,
                     None => {
-                        Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
-                        std::process::exit(1);
+                        if upload == ""{
+                            Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
+                            std::process::exit(1);
+                        }
+                        ""
                     },
                 };
+
                 let start:i32 = search_match.value_of("start").unwrap_or("0").parse().unwrap_or(0);
                 let size:i32 = search_match.value_of("size").unwrap_or("10").parse().unwrap_or(10);
+                let time_start = search_match.value_of("time_start").unwrap_or("");
+                let time_end = search_match.value_of("time_end").unwrap_or("");
                 if size > 100{
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
                 let data_type= search_match.value_of("type").unwrap_or("ip,port").
                     split(",").collect::<Vec<&str>>();
                 let filter = search_match.value_of("filter").unwrap_or("");
-                let response = Quake::query(query, start, size);
+                let response = Quake::query(query, upload, start, size, time_start, time_end);
                 let output = match search_match.value_of("output"){
                     Some(name)  => name,
                     None =>{

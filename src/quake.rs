@@ -1,45 +1,38 @@
-/*TODO: Comment*/
-
 pub mod quake {
     // use log::{debug, error, info};
     use reqwest::header::{HeaderMap, HeaderValue};
-    use serde_json::Value;
+    use serde_json::{Value, Map, Number};
     use crate::common::{Service, Output, Host, AggService};
     use crate::api::ApiKey;
     use std::fs::OpenOptions;
     use std::io::Write;
-    use std::io;
+    use std::{io, fs};
     use chrono::{Local, Duration};
     use regex::{Regex};
     use ansi_term::Colour::Red;
+    use reqwest::blocking::Response;
 
     //BaseUrl is the basis for all of our api requests.
     const BASE_URL: &'static str = "https://quake.360.cn";
-    // TODO: Comment
+
     pub struct Quake{
         api_key: String,
     }
 
     impl Quake{
 
-        // TODO: Comment
+
         pub fn new(api_key: String) -> Quake{
             Quake{
                 api_key
             }
         }
 
-        // TODO: Comment
+
         pub fn query_host(query_string:&str, start: i32, size:i32)->Value{
             Output::info(&format!("Search with {}", query_string));
-            let res= match ApiKey::get_api(){
-                Ok(res) => res,
-                Err(e) =>{
-                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
-                    std::process::exit(1);
-                }
-            };
-            // TODO: Comment
+            let res= ApiKey::get_api().expect("Failed to read apikey:\t");
+
             let h = Host{
                 query: String::from(query_string),
                 start,
@@ -56,7 +49,7 @@ pub mod quake {
             response
         }
 
-        // TODO: Comment
+
         pub fn search_host(&self, host:&Host)->Result<Value, serde_json::Error>{
             let mut url = String::new();
             url.push_str(BASE_URL);
@@ -75,7 +68,7 @@ pub mod quake {
             };
             let res = resp.text().unwrap();
             let response:Value = serde_json::from_str(&res)?;
-            // TODO: Comment
+
             let code = response["code"].as_i64().unwrap() as i32;
             let message = response["message"].as_str().unwrap();
             if code != 0{
@@ -85,27 +78,50 @@ pub mod quake {
             Ok(response)
         }
 
-        // TODO: Comment
-        pub fn query(query_string:&str, start: i32, size:i32) -> Value{
-            Output::info(&format!("Search with {}", query_string));
-            let res= match ApiKey::get_api(){
-                Ok(res) => res,
-                Err(e) =>{
-                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
-                    std::process::exit(1);
-                }
-            };
-            let (local, one_years_ago) = Self::getdate();
-            // TODO: Comment
-            let s = Service{
-                query: String::from(query_string),
+
+        pub fn query(query_string:&str, file_name:&str, start: i32, size:i32, time_start:&str, time_end:&str) -> Value{
+            let res= ApiKey::get_api().expect("Failed to read apikey:\t");
+
+            let mut s = Service{
+                query: "".to_string(),
                 start,
                 size,
                 ignore_cache: false,
-                start_time: one_years_ago,
-                end_time: local
+                start_time: "".to_string(),
+                end_time: "".to_string(),
+                ip_list: vec![]
             };
-            let response:Value = match Quake::new(res).search(&s) {
+            let (local, one_years_ago) = Self::getdate();
+            if time_start == "" && time_end == ""{
+                s.start_time = one_years_ago;
+                s.end_time = local;
+            }else if time_start != "" && time_end == ""{
+                s.start_time = time_start.to_string();
+                s.end_time = local;
+            }else if time_start == "" && time_end != ""{
+                s.start_time = one_years_ago;
+                s.end_time = time_end.to_string();
+            }else if time_start != "" && time_end != ""{
+                s.start_time = time_start.to_string();
+                s.end_time = time_end.to_string();
+            }
+            if file_name != ""{
+                let ips:String = match fs::read_to_string(file_name){
+                    Ok(res) => res,
+                    Err(err) =>{
+                        Output::error(&format!("Failed to read {} : {}",file_name, err.to_string()));
+                        std::process::exit(1);
+                    }
+                };
+                s.ip_list = ips.lines().map(|s|Value::String(s.to_string())).collect();
+            }
+            if query_string != ""{
+                s.query = format!("({}) AND is_latest:true", query_string);
+                Output::info(&format!("Search with {}", query_string));
+            }else {
+                Output::info(&format!("Search for {} IPs", s.ip_list.len()));
+            }
+            let response:Value = match Quake::new(res).search(s) {
                 Ok(response) => response,
                 Err(e) =>{
                     Output::error(&format!("Query failed: {}", e.to_string()));
@@ -115,13 +131,14 @@ pub mod quake {
             response
         }
 
-        // TODO: Comment
-        pub fn search(&self, service:&Service) -> Result<Value, serde_json::Error>{
+
+        pub fn search(&self, service:Service) -> Result<Value, serde_json::Error>{
             let mut url = String::new();
             url.push_str(BASE_URL);
             url.push_str("/api/v3/search/quake_service");
             let client = reqwest::blocking::Client::new();
-            let resp = match client.post(&url).headers(self.header()).json(&service).send(){
+            let post_data:Map<String, Value> = Self::get_service_post_data(service);
+            let resp:Response = match client.post(&url).headers(self.header()).json(&post_data).send(){
                 Ok(resp) => resp,
                 Err(e) =>{
                     if e.is_timeout(){
@@ -144,7 +161,7 @@ pub mod quake {
                 }
             };
             let response:Value = serde_json::from_str(&res)?;
-            // TODO: Comment
+
             let code = response["code"].as_i64().unwrap() as i32;
             let message = response["message"].as_str().unwrap();
             if code != 0{
@@ -154,7 +171,7 @@ pub mod quake {
             Ok(response)
         }
 
-        // TODO: Comment
+
         pub fn show(value:Value, showdata:bool, filter:&str, mut data_type: Vec<&str>) -> Vec<String>{
             let count = value["meta"]["pagination"]["count"].as_i64().unwrap() as usize;
             let total =  value["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
@@ -248,8 +265,8 @@ pub mod quake {
             }
             res
         }
-        // TODO: Comment
-        pub fn show_host(value: Value, showdata:bool) -> Vec<String>{
+
+        pub fn show_host(value: Value, show_data:bool) -> Vec<String>{
             let mut value = value;
             let mut res:Vec<String> = Vec::new();
             let count = value["meta"]["pagination"]["count"].as_i64().unwrap() as usize;
@@ -277,14 +294,14 @@ pub mod quake {
                                            port=s["port"], protocol=protocol, time=service_time, width=20));
                 }
                 info.push_str("\n");
-                if showdata{
+                if show_data {
                     println!("{}", info);
                 }
                 res.push(info);
             }
             res
         }
-        // TODO: Comment
+
         pub fn show_domain(value: Value, onlycount: bool, showdata:bool, mut data_type: Vec<&str>) -> Vec<String>{
             let mut value = value;
             let mut res:Vec<String> = Vec::new();
@@ -326,7 +343,7 @@ pub mod quake {
             }
             res
         }
-        // TODO: Comment
+
         pub fn save_domain_data(filename: &str, content: Value, data_type:Vec<&str>) ->io::Result<i32>{
             let mut f = OpenOptions::new().create(true).append(true).open(filename)?;
             let domains:Vec<String> = Self::show_domain(content, false, false, data_type);
@@ -337,7 +354,7 @@ pub mod quake {
             }
             Ok(count)
         }
-        // TODO: COmment
+
         pub fn save_host_data(filename: &str, content: Value)->io::Result<i32>{
             let mut f = OpenOptions::new().create(true).append(true).open(filename)?;
             let hosts = Self::show_host(content, false);
@@ -349,7 +366,7 @@ pub mod quake {
             Ok(count)
         }
 
-        // TODO: COmment
+
         pub fn save_search_data(filename: &str, content: Value, filter:&str, data_type: Vec<&str>)->io::Result<i32>{
             let mut f = OpenOptions::new().create(true).append(true).open(filename)?;
             let hosts = Self::show(content, false, filter, data_type);
@@ -361,7 +378,7 @@ pub mod quake {
             Ok(count)
         }
 
-        // TODO: COmment
+
         fn aggservice(&self, agg:&AggService) -> Result<Value, serde_json::Error>{
             let mut url = String::new();
             url.push_str(BASE_URL);
@@ -380,7 +397,7 @@ pub mod quake {
             };
             let res = resp.text().unwrap();
             let response:Value = serde_json::from_str(&res)?;
-            // TODO: Comment
+
             let code = response["code"].as_i64().unwrap() as i32;
             let message = response["message"].as_str().unwrap();
             if code != 0{
@@ -394,14 +411,8 @@ pub mod quake {
             Output::info(&format!("Search with {}", ip));
             let mut query = String::from("app: \"*蜜罐*\" AND ip:");
             query += &ip;
-            let res= match ApiKey::get_api(){
-                Ok(res) => res,
-                Err(e) =>{
-                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
-                    std::process::exit(1);
-                }
-            };
-            // TODO: Comment
+            let res=ApiKey::get_api().expect("Failed to read apikey:\t");
+
             let s = AggService{
                 query,
                 start: 0,
@@ -451,7 +462,7 @@ pub mod quake {
             };
             let res = resp.text().unwrap();
             let response:Value = serde_json::from_str(&res)?;
-            // TODO: Comment
+
             let code = response["code"].as_i64().unwrap() as i32;
             let message = response["message"].as_str().unwrap();
             if code != 0{
@@ -463,13 +474,7 @@ pub mod quake {
 
         // TODO:Comment
         pub fn show_info(){
-            let res = match ApiKey::get_api(){
-                Ok(res) => res,
-                Err(e) =>{
-                    Output::error(&format!("Failed to read apikey:\t{}", e.to_string()));
-                    std::process::exit(1);
-                }
-            };
+            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
             let info = match Quake::new(res).info(){
                 Ok(value) => value,
                 Err(e) =>{
@@ -508,14 +513,30 @@ pub mod quake {
 
         }
 
-        // TODO: Comment
+        fn get_service_post_data(s:Service)->Map<String, Value> {
+            let mut data:Map<String, Value> = Map::new();
+            data.insert("start".to_string(), Value::Number(Number::from(s.start)));
+            data.insert("size".to_string(), Value::Number(Number::from(s.size)));
+            data.insert("ignore_cache".to_string(), Value::Bool(false));
+            data.insert("start_time".to_string(), Value::String(s.start_time));
+            data.insert("end_time".to_string(), Value::String(s.end_time));
+            if !s.ip_list.is_empty(){
+                data.insert("query".to_string(), Value::String("is_latest:true".to_string()));
+                data.insert("ip_list".to_string(), Value::Array(s.ip_list));
+            }else {
+                data.insert("query".to_string(), Value::String(s.query));
+            }
+            data
+        }
+
+
         fn header(&self) -> HeaderMap {
             let mut header = HeaderMap::new();
             header.insert("X-QuakeToken", HeaderValue::from_str(self.api_key.as_str()).unwrap());
             header
         }
 
-        // TODO: Comment
+
         pub(crate) fn getdate() ->(String, String){
             let local = Local::now();
             let one_years_ago = local - Duration::days(365);
