@@ -31,6 +31,7 @@ impl ApiKey{
     fn check_api(apikey:String) -> bool{
         let (local, one_years_ago) = Quake::getdate();
         let s = Service{
+            ip_list: Vec::new(),
             query: String::from("port:80"),
             start: 1,
             size: 1,
@@ -38,7 +39,7 @@ impl ApiKey{
             start_time: one_years_ago,
             end_time: local
         };
-        let res = match Quake::new(apikey).search(&s) {
+        let res = match Quake::new(apikey).search(s) {
             Ok(_) => {
                 true
             },
