@@ -15,8 +15,10 @@
    
 ## 更新日志
 * 2021-04-06 v2.0.1:
-  * 优化搜索结果，去除重复数据。  
-  * 
+    * 优化搜索结果，去除重复数据。  
+    * 添加文件上传搜索功能。
+    * 添加指定时间搜索功能。
+    * 优化代码。
 * 2021-01-22 v1.0.5:
     * 修复TLS解构解析不一致的问题。
     * 修复命令行工具被杀软报毒问题。
@@ -200,7 +202,8 @@ IP: 5.188.34.218        Country: Singapore      Province: Singapore     City: Si
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:44:34 PM]─[G:master=]
 ╰─>$ ./quake search
-quake-search
+╰─>$ ./quake search 
+quake-search 
 Search the Quake database
 
 USAGE:
@@ -211,18 +214,64 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --filter <TYPE>        Filter
-    -o, --output <FILENAME>    Save the host information in the given file (append if file exists).
-        --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
-        --start <NUMBER>       Starting position of the query (Default 0).
-    -t, --type <TYPE>          Fields displayed:ip,port,title,country,province,city,owner,time,domain,ssldomain. (Default ip,port)
+    -f, --filter <TYPE>              Filter search results with more regular expressions.
+                                     Example: quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version:
+                                     (.*)"
+    -o, --output <FILENAME>          Save the host information in the given file (append if file exists).
+        --size <NUMBER>              The size of the number of responses, up to a maximum of 100 (Default 10).
+        --start <NUMBER>             Starting position of the query (Default 0).
+    -e, --end_time <TIME END>        Search end time
+                                     Example: quake search 'port:80' -e 2020-01-01
+    -s, --start_time <TIME START>    Search start time
+                                     Example: quake search 'port:80' -s 2020-01-01
+    -t, --type <TYPE>                Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain,domain.
+                                     (Default ip,port)
+    -u, --upload <IP File>           Uploading *.txt files containing only IP addresses, with no more than 1000 IPs.
+                                     Example: quake search -u ips.txt
 
 ARGS:
     <query_string>    Quake Querystring
 ```
 搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
+-e --end_time 搜索结束时间  -s --start-time 搜索开始时间。指定某段时间内返回的数据。
+-u --upload 上传一个IP列表(不超过1000条)，进行批量查询。
 
 ##### Example：
+
+```
+╰─>$ ./quake search -u ips.txt
+[+] Search for 44 IPs
+[+] Successful.
+[+] count: 10 	total: 81
+165.229.11.173	443	
+123.194.137.183	80	
+123.194.137.183	443	
+112.90.184.180	8443	
+112.90.184.180	8081	
+106.75.10.72	443	
+112.90.184.180	27017	
+165.229.11.173	80	
+123.194.137.183	1723	
+123.194.137.183	23
+```
+
+```
+╰─>$ ./quake search 'port:80' -e 2022-01-01 -s 2011-01-01
+[+] Search with port:80
+[+] Successful.
+[+] count: 10 	total: 118182073
+185.8.172.250	80	
+142.111.218.92	80	
+142.111.241.223	80	
+185.8.100.216	80	
+217.62.137.0	80	
+217.58.176.17	80	
+179.43.148.203	80	
+185.69.223.29	80	
+185.69.240.170	80	
+217.31.44.144	80
+```
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:47:10 PM]─[G:master=]
 ╰─>$ ./quake search 'app:"exchange 2010"' -t ip,port,title
