@@ -116,7 +116,7 @@ pub mod quake {
                 s.ip_list = ips.lines().map(|s|Value::String(s.to_string())).collect();
             }
             if query_string != ""{
-                s.query = format!("({}) AND is_latest:true", query_string);
+                s.query = format!("{}", query_string);
                 Output::info(&format!("Search with {}", query_string));
             }else {
                 Output::info(&format!("Search for {} IPs", s.ip_list.len()));
