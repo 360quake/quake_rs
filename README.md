@@ -289,7 +289,7 @@ ARGS:
 23.28.247.211   443     Outlook Web App
 182.93.16.236   443     Outlook Web App
 ```
-查看ssl证书种的域名。
+查看ssl证书中的Common Name（包含域名等信息）。
 
 ```bash
 ┬─[kali@kali:~/quake_rs]─[02:29:15 AM]─[G:master=]
