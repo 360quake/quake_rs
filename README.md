@@ -4,7 +4,7 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/tag/2.0.1
+    https://github.com/360quake/quake_rs/releases/tag/2.0.2
 
 2. 或者本地编译：
     
