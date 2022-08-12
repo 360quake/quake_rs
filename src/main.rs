@@ -1,5 +1,5 @@
-mod common;
 mod api;
+mod common;
 mod quake;
 
 fn main() {
