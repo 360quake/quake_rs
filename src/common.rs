@@ -183,6 +183,16 @@ impl ArgParse {
                             .long("latest_data")
                             .value_name("NUMBER")
                             .help("Display latest data when parameter is 1,Not up to date by default"))
+                    .arg(Arg::with_name("filter_request")
+                            .short("r")
+                            .long("filter_request")
+                            .value_name("NUMBER")
+                            .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
+                    .arg(Arg::with_name("deduplication")
+                            .short("d")
+                            .long("deduplication")
+                            .value_name("NUMBER")
+                            .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
             )
             .subcommand(
                 SubCommand::with_name("domain")
@@ -202,6 +212,7 @@ impl ArgParse {
                             .long("latest_data")
                             .value_name("NUMBER")
                             .help("Display latest data when parameter is 1,Not up to date by default"))
+
                     .arg(
                         Arg::with_name("domain_name")
                             .index(1)
@@ -241,6 +252,16 @@ impl ArgParse {
                             .help("Fields displayed:domain,ip,port,title. (Default domain, ip, port)")
 
                     )
+                    .arg(Arg::with_name("filter_request")
+                            .short("r")
+                            .long("filter_request")
+                            .value_name("NUMBER")
+                            .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
+                    .arg(Arg::with_name("deduplication")
+                            .short("d")
+                            .long("deduplication")
+                            .value_name("NUMBER")
+                            .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
                     .setting(AppSettings::ArgRequiredElseHelp)
 
             )
@@ -308,7 +329,18 @@ impl ArgParse {
                     .unwrap_or("0")
                     .parse()
                     .unwrap_or(0);
-                let response = Quake::query(query, "", start, size, "", "", cdn, mg, zxsj);
+                let wxqq: i32 = domain_match
+                    .value_of("filter_request")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let sjqc: i32 = domain_match
+                    .value_of("deduplication")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let response =
+                    Quake::query(query, "", start, size, "", "", cdn, mg, zxsj, wxqq, sjqc);
 
                 let output = match domain_match.value_of("output") {
                     Some(name) => name,
@@ -421,6 +453,16 @@ impl ArgParse {
                     .unwrap_or("0")
                     .parse()
                     .unwrap_or(0);
+                let wxqq: i32 = search_match
+                    .value_of("filter_request")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let sjqc: i32 = search_match
+                    .value_of("deduplication")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
                 let time_start = search_match.value_of("time_start").unwrap_or("");
                 let time_end = search_match.value_of("time_end").unwrap_or("");
                 if size > 100 {
@@ -433,7 +475,7 @@ impl ArgParse {
                     .collect::<Vec<&str>>();
                 let filter = search_match.value_of("filter").unwrap_or("");
                 let response = Quake::query(
-                    query, upload, start, size, time_start, time_end, cdn, mg, zxsj,
+                    query, upload, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
                 );
                 let output = match search_match.value_of("output") {
                     Some(name) => name,

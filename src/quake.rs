@@ -82,6 +82,8 @@ pub mod quake {
             cdn: i32,
             mg: i32,
             zxsj: i32,
+            wxqq: i32,
+            sjqc: i32,
         ) -> Value {
             let res = ApiKey::get_api().expect("Failed to read apikey:\t");
             let mut s = Service {
@@ -104,6 +106,14 @@ pub mod quake {
             }
             if zxsj == 1 {
                 s.ignore_cache = true;
+            }
+            if wxqq == 1 {
+                s.shortcuts
+                    .push(Value::String("62bc12b70537d96695680ce5".to_string()));
+            }
+            if sjqc == 1 {
+                s.shortcuts
+                    .push(Value::String("610ce2fbda6d29df72ac56eb".to_string()));
             }
             let (local, one_years_ago) = Self::getdate();
             if time_start == "" && time_end == "" {
