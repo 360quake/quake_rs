@@ -1,8 +1,8 @@
-name: release
+name: rust_build_create
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   release:
