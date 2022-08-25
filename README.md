@@ -4,7 +4,7 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/tag/2.0.2
+    https://github.com/360quake/quake_rs/releases/
 
 2. 或者本地编译：
     
@@ -14,6 +14,9 @@
     ```
    
 ## 更新日志
+* 2022-08-25 v2.1:
+    * 优化新增排除cdn、排除蜜罐、显示最新数据参数
+    * 新增workflows工作流打包成release
 * 2021-08-12 v2.0.3:
     * 新增排除蜜罐、排除CDN、使用最新数据功能
     * 新增过滤无效请求和数据去重功能
