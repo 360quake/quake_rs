@@ -1,19 +1,19 @@
 name: quake_rs_build
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - v[0-9]+.* # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: taiki-e/create-gh-release-action@v1.5.0
-        with:
-          # (optional) Path to changelog.
-          changelog: CHANGELOG.md
+      - uses: taiki-e/create-gh-release-action@v1
         env:
           # (required) GitHub token for creating GitHub Releases.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,11 +28,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: taiki-e/upload-rust-binary-action@v1.7.2
+      - uses: taiki-e/upload-rust-binary-action@v1
         with:
           # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
           # Note that glob pattern is not supported yet.
-          bin: ...
+          bin: quake_rs
           # (optional) On which platform to distribute the `.tar.gz` file.
           # [default value: unix]
           # [possible values: all, unix, windows, none]
