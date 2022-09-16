@@ -9,7 +9,7 @@ pub mod quake {
     use reqwest::header::{HeaderMap, HeaderValue};
     use serde_json::{Map, Number, Value};
     use std::fs::OpenOptions;
-    use std::io::Write;
+    use std::io::{Read, Write};
     use std::{fs, io};
 
     //BaseUrl is the basis for all of our api requests.
@@ -142,6 +142,82 @@ pub mod quake {
                     }
                 };
                 s.ip_list = ips.lines().map(|s| Value::String(s.to_string())).collect();
+            }
+            if query_string != "" {
+                s.query = format!("{}", query_string);
+                Output::info(&format!("Search with {}", query_string));
+            } else {
+                Output::info(&format!("Search for {} IPs", s.ip_list.len()));
+            }
+            Output::info(&format!(
+                "Data time again {} to {}.",
+                s.start_time, s.end_time
+            ));
+            let response: Value = match Quake::new(res).search(s) {
+                Ok(response) => response,
+                Err(e) => {
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            response
+        }
+
+        pub fn query_file(
+            query_string: &str,
+            start: i32,
+            size: i32,
+            time_start: &str,
+            time_end: &str,
+            cdn: i32,
+            mg: i32,
+            zxsj: i32,
+            wxqq: i32,
+            sjqc: i32,
+        ) -> Value {
+            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
+            let mut s = Service {
+                query: "".to_string(),
+                start,
+                size,
+                ignore_cache: false,
+                start_time: "".to_string(),
+                end_time: "".to_string(),
+                ip_list: vec![],
+                shortcuts: vec![],
+            };
+            if cdn == 1 {
+                s.shortcuts
+                    .push(Value::String("612f5a5ad6b3bdb87961727f".to_string()));
+            }
+            if mg == 1 {
+                s.shortcuts
+                    .push(Value::String("610ce2adb1a2e3e1632e67b1".to_string()));
+            }
+            if zxsj == 1 {
+                s.ignore_cache = true;
+            }
+            if wxqq == 1 {
+                s.shortcuts
+                    .push(Value::String("62bc12b70537d96695680ce5".to_string()));
+            }
+            if sjqc == 1 {
+                s.shortcuts
+                    .push(Value::String("610ce2fbda6d29df72ac56eb".to_string()));
+            }
+            let (local, one_years_ago) = Self::getdate();
+            if time_start == "" && time_end == "" {
+                s.start_time = one_years_ago;
+                s.end_time = local;
+            } else if time_start != "" && time_end == "" {
+                s.start_time = time_start.to_string();
+                s.end_time = local;
+            } else if time_start == "" && time_end != "" {
+                s.start_time = Self::getdate_for_manual(time_end);
+                s.end_time = time_end.to_string();
+            } else if time_start != "" && time_end != "" {
+                s.start_time = time_start.to_string();
+                s.end_time = time_end.to_string();
             }
             if query_string != "" {
                 s.query = format!("{}", query_string);
@@ -656,6 +732,16 @@ pub mod quake {
                 local.format("%Y-%m-%d %H:%M:%S").to_string(),
                 one_years_ago.format("%Y-%m-%d %H:%M:%S").to_string(),
             )
+        }
+        pub fn read_file(filename: String) -> String {
+            // 读取文件
+            let mut file = fs::File::open(filename).unwrap();
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).unwrap();
+            // print!("{:?}",contents);
+            let contents_or = contents.replace("\n", " OR ");
+            let query = &contents_or[0..contents_or.len()-4];
+            query.to_string()
         }
     }
 }
