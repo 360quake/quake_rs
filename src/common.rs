@@ -169,49 +169,110 @@ impl ArgParse {
                             Example: quake search 'app:\"exchange 2010\"' -t ip,port,title -f \"X-OWA-Version: (.*)\"")
                     )
                     .arg(Arg::with_name("cdn")
-                            .short("c")
-                            .long("cdn")
-                            .value_name("NUMBER")
-                            .help("Exclude cdn data when parameter is 1,Not excluded by default"))
+                        .short("c")
+                        .long("cdn")
+                        .value_name("NUMBER")
+                        .help("Exclude cdn data when parameter is 1,Not excluded by default"))
                     .arg(Arg::with_name("honey_jar")
-                            .short("m")
-                            .long("honey_jar")
-                            .value_name("NUMBER")
-                            .help("Exclude honey_jar data when parameter is 1,Not excluded by default"))
+                        .short("m")
+                        .long("honey_jar")
+                        .value_name("NUMBER")
+                        .help("Exclude honey_jar data when parameter is 1,Not excluded by default"))
                     .arg(Arg::with_name("latest_data")
-                            .short("l")
-                            .long("latest_data")
-                            .value_name("NUMBER")
-                            .help("Display latest data when parameter is 1,Not up to date by default"))
+                        .short("l")
+                        .long("latest_data")
+                        .value_name("NUMBER")
+                        .help("Display latest data when parameter is 1,Not up to date by default"))
                     .arg(Arg::with_name("filter_request")
-                            .short("r")
-                            .long("filter_request")
-                            .value_name("NUMBER")
-                            .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
+                        .short("r")
+                        .long("filter_request")
+                        .value_name("NUMBER")
+                        .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
                     .arg(Arg::with_name("deduplication")
-                            .short("d")
-                            .long("deduplication")
+                        .short("d")
+                        .long("deduplication")
+                        .value_name("NUMBER")
+                        .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
+            )
+            .subcommand(
+                SubCommand::with_name("file")
+                    .about("View all query information for a file.")
+                    .arg(
+                        Arg::with_name("filename")
+                            .index(1)
+                            .help("Quake query file name")
+                            .value_name("FILENAME")
+                    )
+                    .arg(
+                        Arg::with_name("output")
+                            .short("o")
+                            .long("output")
+                            .help("Save the query information in the given file (append if file exists).")
+                            .value_name("FILENAME")
+                    )
+                    .arg(
+                        Arg::with_name("size")
+                            .long("size")
                             .value_name("NUMBER")
-                            .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
+                            .help("The size of the number of responses, up to a maximum of 100 (Default 10).")
+                    )
+                    .arg(
+                        Arg::with_name("start")
+                            .long("start")
+                            .value_name("NUMBER")
+                            .help("Starting position of the query (Default 0).")
+                    )
+                    .arg(
+                        Arg::with_name("time_start")
+                            .short("s")
+                            .long("start_time")
+                            .help("Search start time\r\n\
+                            Example: quake search 'port:80' -s 2020-01-01")
+                            .value_name("TIME START")
+                    )
+                    .arg(
+                        Arg::with_name("time_end")
+                            .short("e")
+                            .long("end_time")
+                            .help("Search end time\r\n\
+                            Example: quake search 'port:80' -e 2020-01-01")
+                            .value_name("TIME END")
+                    )
+                    .arg(
+                        Arg::with_name("type")
+                            .short("t")
+                            .long("type")
+                            .value_name("TYPE")
+                            .help("Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain. (Default ip,port)")
+                    )
+                    .arg(
+                        Arg::with_name("filter")
+                            .short("f")
+                            .long("filter")
+                            .value_name("TYPE")
+                            .help("Filter search results with more regular expressions.\r\n\
+                            Example: quake search 'app:\"exchange 2010\"' -t ip,port,title -f \"X-OWA-Version: (.*)\"")
+                    )
+                    .setting(AppSettings::ArgRequiredElseHelp)
             )
             .subcommand(
                 SubCommand::with_name("domain")
                     .about("View all available information for a domain.")
                     .arg(Arg::with_name("cdn")
-                            .short("n")
-                            .long("cdn")
-                            .value_name("NUMBER")
-                            .help("Exclude cdn data when parameter is 1,Not excluded by default"))
+                        .short("n")
+                        .long("cdn")
+                        .value_name("NUMBER")
+                        .help("Exclude cdn data when parameter is 1,Not excluded by default"))
                     .arg(Arg::with_name("honey_jar")
-                            .short("m")
-                            .long("honey_jar")
-                            .value_name("NUMBER")
-                            .help("Exclude honey_jar data when parameter is 1,Not excluded by default"))
+                        .short("m")
+                        .long("honey_jar")
+                        .value_name("NUMBER")
+                        .help("Exclude honey_jar data when parameter is 1,Not excluded by default"))
                     .arg(Arg::with_name("latest_data")
-                            .short("l")
-                            .long("latest_data")
-                            .value_name("NUMBER")
-                            .help("Display latest data when parameter is 1,Not up to date by default"))
+                        .short("l")
+                        .long("latest_data")
+                        .value_name("NUMBER")
+                        .help("Display latest data when parameter is 1,Not up to date by default"))
 
                     .arg(
                         Arg::with_name("domain_name")
@@ -250,20 +311,18 @@ impl ArgParse {
                             .long("type")
                             .value_name("TYPE")
                             .help("Fields displayed:domain,ip,port,title. (Default domain, ip, port)")
-
                     )
                     .arg(Arg::with_name("filter_request")
-                            .short("r")
-                            .long("filter_request")
-                            .value_name("NUMBER")
-                            .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
+                        .short("r")
+                        .long("filter_request")
+                        .value_name("NUMBER")
+                        .help("When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and other request data, the default is not filtered"))
                     .arg(Arg::with_name("deduplication")
-                            .short("d")
-                            .long("deduplication")
-                            .value_name("NUMBER")
-                            .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
+                        .short("d")
+                        .long("deduplication")
+                        .value_name("NUMBER")
+                        .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
                     .setting(AppSettings::ArgRequiredElseHelp)
-
             )
             .subcommand(
                 SubCommand::with_name("honeypot")
@@ -284,6 +343,87 @@ impl ArgParse {
                 if let Some(api_key) = init_match.value_of("Api_Key") {
                     ApiKey::init(api_key.to_string());
                 }
+            }
+            ("file", Some(file_match)) => {
+                let filename = match file_match.value_of("filename") {
+                    Some(filename) => filename,
+                    None => {
+                        Output::error(
+                            "Error: You must choose a file. Please execute -h for help.",
+                        );
+                        std::process::exit(1);
+                    }
+                };
+                let start: i32 = file_match
+                    .value_of("start")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let size: i32 = file_match
+                    .value_of("size")
+                    .unwrap_or("10")
+                    .parse()
+                    .unwrap_or(10);
+                if size > 100 {
+                    Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
+                }
+                let cdn: i32 = file_match
+                    .value_of("cdn")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let mg: i32 = file_match
+                    .value_of("honey_jar")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let zxsj: i32 = file_match
+                    .value_of("latest_data")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let wxqq: i32 = file_match
+                    .value_of("filter_request")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let sjqc: i32 = file_match
+                    .value_of("deduplication")
+                    .unwrap_or("0")
+                    .parse()
+                    .unwrap_or(0);
+                let time_start = file_match.value_of("time_start").unwrap_or("");
+                let time_end = file_match.value_of("time_end").unwrap_or("");
+                let query = Quake::read_file(filename.to_string());
+                let filter = file_match.value_of("filter").unwrap_or("");
+                let data_type = file_match
+                    .value_of("type")
+                    .unwrap_or("ip,port")
+                    .split(",")
+                    .collect::<Vec<&str>>();
+
+                let response = Quake::query_file(
+                    &query, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
+                );
+                let output = match file_match.value_of("output") {
+                    Some(name) => name,
+                    None => {
+                        Quake::show(response, true, filter, data_type);
+                        std::process::exit(0);
+                    }
+                };
+                // save to file.
+                match Quake::save_search_data(output, response, filter, data_type) {
+                    Ok(count) => {
+                        Output::success(&format!(
+                            "Successfully saved {} pieces of data to {}",
+                            count, output
+                        ));
+                    }
+                    Err(e) => {
+                        Output::error(&format!("Data saving failure:{}", e.to_string()));
+                    }
+                };
             }
             ("domain", Some(domain_match)) => {
                 let domain = match domain_match.value_of("domain_name") {
