@@ -14,6 +14,9 @@
     ```
    
 ## 更新日志
+* 2022-09-19 v2.2.1:
+  * 优化批量查询的功能，读取txt中查询语句，将结果发回到新的txt中
+  * 删除部分冗余代码
 * 2022-09-16 v2.2:
   * 添加批量查询的功能
   * 读取txt中查询语句，将结果发回到新的txt中
@@ -227,10 +230,18 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -c, --cdn <NUMBER>               Exclude cdn data when parameter is 1,Not excluded by default
+    -d, --deduplication <NUMBER>     When the parameter is 1, data deduplication is performed, and no deduplication is
+                                     performed by default.
     -f, --filter <TYPE>              Filter search results with more regular expressions.
                                      Example: quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version:
                                      (.*)"
+    -r, --filter_request <NUMBER>    When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and
+                                     other request data, the default is not filtered
+    -m, --honey_jar <NUMBER>         Exclude honey_jar data when parameter is 1,Not excluded by default
+    -l, --latest_data <NUMBER>       Display latest data when parameter is 1,Not up to date by default
     -o, --output <FILENAME>          Save the host information in the given file (append if file exists).
+    -q, --query_file <FILENAME>      Quake Querystring file; Example: quake search -q test.txt
         --size <NUMBER>              The size of the number of responses, up to a maximum of 100 (Default 10).
         --start <NUMBER>             Starting position of the query (Default 0).
     -e, --end_time <TIME END>        Search end time
@@ -243,13 +254,21 @@ OPTIONS:
                                      Example: quake search -u ips.txt
 
 ARGS:
-    <query_string>    Quake Querystring
+    <query_string>    Quake Querystring; Example: quake search 'port:80'
 ```
 搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
 -e --end_time 搜索结束时间  -s --start-time 搜索开始时间。指定某段时间内返回的数据。
 -u --upload 上传一个IP列表(不超过1000条)，进行批量查询。
 
 ##### Example：
+```
+╰─>$ ./quake search -q query.txt -o result.txt
+[+] Search with ip:"122.xxx.xxx.6" OR domain:"xxxxx.com"
+[+] Data time again 2021-09-19 18:12:31 to 2022-09-19 18:12:31.
+[+] Successful.
+[+] count: 10   total: 15385
+[+] Successfully saved 10 pieces of data to result.txt
+```
 
 ```
 ╰─>$ ./quake search -u ips.txt
