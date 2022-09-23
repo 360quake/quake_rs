@@ -24,6 +24,22 @@ pub struct Service {
   TODO: Comment
 */
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Scroll {
+    pub query: String,
+    pub start: i32,
+    pub size: i32,
+    pub ignore_cache: bool,
+    pub pagination_id: String,
+    pub start_time: String,
+    pub end_time: String,
+    pub ip_list: Vec<Value>,
+    pub shortcuts: Vec<Value>,
+}
+
+/*
+  TODO: Comment
+*/
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Host {
     pub query: String,
     pub start: i32,
@@ -48,7 +64,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = App::new("Quake Command-Line Application")
-            .version("2.2")
+            .version("2.2.1")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand(
@@ -108,7 +124,14 @@ impl ArgParse {
                     .arg(
                         Arg::with_name("query_string")
                             .index(1)
-                            .help("Quake Querystring")
+                            .help("Quake Querystring; Example: quake search 'port:80'")
+                    )
+                    .arg(
+                        Arg::with_name("query_file")
+                            .short("q")
+                            .long("query_file")
+                            .help("Quake Querystring file; Example: quake search -q test.txt")
+                            .value_name("FILENAME")
                     )
                     .arg(
                         Arg::with_name("time_start")
@@ -193,67 +216,6 @@ impl ArgParse {
                         .long("deduplication")
                         .value_name("NUMBER")
                         .help("When the parameter is 1, data deduplication is performed, and no deduplication is performed by default."))
-            )
-            .subcommand(
-                SubCommand::with_name("file")
-                    .about("View all query information for a file.")
-                    .arg(
-                        Arg::with_name("filename")
-                            .index(1)
-                            .help("Quake query file name")
-                            .value_name("FILENAME")
-                    )
-                    .arg(
-                        Arg::with_name("output")
-                            .short("o")
-                            .long("output")
-                            .help("Save the query information in the given file (append if file exists).")
-                            .value_name("FILENAME")
-                    )
-                    .arg(
-                        Arg::with_name("size")
-                            .long("size")
-                            .value_name("NUMBER")
-                            .help("The size of the number of responses, up to a maximum of 100 (Default 10).")
-                    )
-                    .arg(
-                        Arg::with_name("start")
-                            .long("start")
-                            .value_name("NUMBER")
-                            .help("Starting position of the query (Default 0).")
-                    )
-                    .arg(
-                        Arg::with_name("time_start")
-                            .short("s")
-                            .long("start_time")
-                            .help("Search start time\r\n\
-                            Example: quake search 'port:80' -s 2020-01-01")
-                            .value_name("TIME START")
-                    )
-                    .arg(
-                        Arg::with_name("time_end")
-                            .short("e")
-                            .long("end_time")
-                            .help("Search end time\r\n\
-                            Example: quake search 'port:80' -e 2020-01-01")
-                            .value_name("TIME END")
-                    )
-                    .arg(
-                        Arg::with_name("type")
-                            .short("t")
-                            .long("type")
-                            .value_name("TYPE")
-                            .help("Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain. (Default ip,port)")
-                    )
-                    .arg(
-                        Arg::with_name("filter")
-                            .short("f")
-                            .long("filter")
-                            .value_name("TYPE")
-                            .help("Filter search results with more regular expressions.\r\n\
-                            Example: quake search 'app:\"exchange 2010\"' -t ip,port,title -f \"X-OWA-Version: (.*)\"")
-                    )
-                    .setting(AppSettings::ArgRequiredElseHelp)
             )
             .subcommand(
                 SubCommand::with_name("domain")
@@ -343,87 +305,6 @@ impl ArgParse {
                 if let Some(api_key) = init_match.value_of("Api_Key") {
                     ApiKey::init(api_key.to_string());
                 }
-            }
-            ("file", Some(file_match)) => {
-                let filename = match file_match.value_of("filename") {
-                    Some(filename) => filename,
-                    None => {
-                        Output::error(
-                            "Error: You must choose a file. Please execute -h for help.",
-                        );
-                        std::process::exit(1);
-                    }
-                };
-                let start: i32 = file_match
-                    .value_of("start")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let size: i32 = file_match
-                    .value_of("size")
-                    .unwrap_or("10")
-                    .parse()
-                    .unwrap_or(10);
-                if size > 100 {
-                    Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
-                }
-                let cdn: i32 = file_match
-                    .value_of("cdn")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let mg: i32 = file_match
-                    .value_of("honey_jar")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let zxsj: i32 = file_match
-                    .value_of("latest_data")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let wxqq: i32 = file_match
-                    .value_of("filter_request")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let sjqc: i32 = file_match
-                    .value_of("deduplication")
-                    .unwrap_or("0")
-                    .parse()
-                    .unwrap_or(0);
-                let time_start = file_match.value_of("time_start").unwrap_or("");
-                let time_end = file_match.value_of("time_end").unwrap_or("");
-                let query = Quake::read_file(filename.to_string());
-                let filter = file_match.value_of("filter").unwrap_or("");
-                let data_type = file_match
-                    .value_of("type")
-                    .unwrap_or("ip,port")
-                    .split(",")
-                    .collect::<Vec<&str>>();
-
-                let response = Quake::query_file(
-                    &query, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
-                );
-                let output = match file_match.value_of("output") {
-                    Some(name) => name,
-                    None => {
-                        Quake::show(response, true, filter, data_type);
-                        std::process::exit(0);
-                    }
-                };
-                // save to file.
-                match Quake::save_search_data(output, response, filter, data_type) {
-                    Ok(count) => {
-                        Output::success(&format!(
-                            "Successfully saved {} pieces of data to {}",
-                            count, output
-                        ));
-                    }
-                    Err(e) => {
-                        Output::error(&format!("Data saving failure:{}", e.to_string()));
-                    }
-                };
             }
             ("domain", Some(domain_match)) => {
                 let domain = match domain_match.value_of("domain_name") {
@@ -557,17 +438,25 @@ impl ArgParse {
                     Some(file_name) => file_name,
                     None => "",
                 };
+                let query_file = match search_match.value_of("query_file") {
+                    Some(query_file) => query_file,
+                    None => "",
+                };
+                let query_string;
                 let query = match search_match.value_of("query_string") {
                     Some(query) => query,
                     None => {
-                        if upload == "" {
+                        if upload == "" && query_file == ""{
                             Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
                             std::process::exit(1);
+                        }else if query_file != ""{
+                            query_string = Quake::read_file_search(query_file);
+                            query_string.as_str()
+                        }else {
+                            ""
                         }
-                        ""
                     }
                 };
-
                 let start: i32 = search_match
                     .value_of("start")
                     .unwrap_or("0")
