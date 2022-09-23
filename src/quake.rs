@@ -163,81 +163,7 @@ pub mod quake {
             response
         }
 
-        pub fn query_file(
-            query_string: &str,
-            start: i32,
-            size: i32,
-            time_start: &str,
-            time_end: &str,
-            cdn: i32,
-            mg: i32,
-            zxsj: i32,
-            wxqq: i32,
-            sjqc: i32,
-        ) -> Value {
-            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
-            let mut s = Service {
-                query: "".to_string(),
-                start,
-                size,
-                ignore_cache: false,
-                start_time: "".to_string(),
-                end_time: "".to_string(),
-                ip_list: vec![],
-                shortcuts: vec![],
-            };
-            if cdn == 1 {
-                s.shortcuts
-                    .push(Value::String("612f5a5ad6b3bdb87961727f".to_string()));
-            }
-            if mg == 1 {
-                s.shortcuts
-                    .push(Value::String("610ce2adb1a2e3e1632e67b1".to_string()));
-            }
-            if zxsj == 1 {
-                s.ignore_cache = true;
-            }
-            if wxqq == 1 {
-                s.shortcuts
-                    .push(Value::String("62bc12b70537d96695680ce5".to_string()));
-            }
-            if sjqc == 1 {
-                s.shortcuts
-                    .push(Value::String("610ce2fbda6d29df72ac56eb".to_string()));
-            }
-            let (local, one_years_ago) = Self::getdate();
-            if time_start == "" && time_end == "" {
-                s.start_time = one_years_ago;
-                s.end_time = local;
-            } else if time_start != "" && time_end == "" {
-                s.start_time = time_start.to_string();
-                s.end_time = local;
-            } else if time_start == "" && time_end != "" {
-                s.start_time = Self::getdate_for_manual(time_end);
-                s.end_time = time_end.to_string();
-            } else if time_start != "" && time_end != "" {
-                s.start_time = time_start.to_string();
-                s.end_time = time_end.to_string();
-            }
-            if query_string != "" {
-                s.query = format!("{}", query_string);
-                Output::info(&format!("Search with {}", query_string));
-            } else {
-                Output::info(&format!("Search for {} IPs", s.ip_list.len()));
-            }
-            Output::info(&format!(
-                "Data time again {} to {}.",
-                s.start_time, s.end_time
-            ));
-            let response: Value = match Quake::new(res).search(s) {
-                Ok(response) => response,
-                Err(e) => {
-                    Output::error(&format!("Query failed: {}", e.to_string()));
-                    std::process::exit(1);
-                }
-            };
-            response
-        }
+
 
         pub fn search(&self, service: Service) -> Result<Value, serde_json::Error> {
             let mut url = String::new();
@@ -688,6 +614,29 @@ pub mod quake {
             }
         }
 
+        // fn get_scroll_post_data(s:Scroll) -> Map<String, Value> {
+        //     let mut data: Map<String, Value> = Map::new();
+        //     data.insert("start".to_string(), Value::Number(Number::from(s.start)));
+        //     data.insert("size".to_string(), Value::Number(Number::from(s.size)));
+        //     data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
+        //     data.insert("start_time".to_string(), Value::String(s.start_time));
+        //     data.insert("end_time".to_string(), Value::String(s.end_time));
+        //     data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
+        //     if !s.ip_list.is_empty() {
+        //         data.insert(
+        //             "query".to_string(),
+        //             Value::String("is_latest:true".to_string()),
+        //         );
+        //         data.insert("ip_list".to_string(), Value::Array(s.ip_list));
+        //     } else {
+        //         data.insert("query".to_string(), Value::String(s.query));
+        //     }
+        //     if !s.pagination_id.is_empty() {
+        //         data.insert("pagination_id".to_string(), Value::String(s.pagination_id));
+        //     }
+        //     data
+        // }
+
         fn get_service_post_data(s: Service) -> Map<String, Value> {
             let mut data: Map<String, Value> = Map::new();
             data.insert("start".to_string(), Value::Number(Number::from(s.start)));
@@ -733,8 +682,7 @@ pub mod quake {
                 one_years_ago.format("%Y-%m-%d %H:%M:%S").to_string(),
             )
         }
-        pub fn read_file(filename: String) -> String {
-            // 读取文件
+        pub fn read_file_search(filename: &str) -> String {
             let mut file = fs::File::open(filename).unwrap();
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
@@ -743,5 +691,17 @@ pub mod quake {
             let query = &contents_or[0..contents_or.len()-4];
             query.to_string()
         }
+
+        // pub fn read_file_domain(filename: String) -> String {
+        //     // 读取文件
+        //     let mut file = fs::File::open(filename).unwrap();
+        //     let mut contents = String::new();
+        //     file.read_to_string(&mut contents).unwrap();
+        //     // print!("{:?}",contents);
+        //     let contents_domains = contents.replace("\n", "\" OR domain:\"");
+        //     let query = &contents_domains[0..contents_domains.len()-13];
+        //     let query_domain = &*("domain:\"".to_owned() + query);
+        //     query_domain.to_string()
+        // }
     }
 }

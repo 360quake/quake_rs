@@ -14,35 +14,38 @@
    ```
 
 ## 更新日志
+* 2022-09-19 v2.2.1:
+  * 优化批量查询的功能，读取txt中查询语句，将结果发回到新的txt中
+  * 删除部分冗余代码
+* 2022-09-16 v2.2:
+  * 添加批量查询的功能
+  * 读取txt中查询语句，将结果发回到新的txt中
+* 2022-08-25 v2.1:
+    * 优化新增排除cdn、排除蜜罐、显示最新数据参数
+    * 新增workflows工作流打包成release
+* 2021-08-12 v2.0.3:
+    * 新增排除蜜罐、排除CDN、使用最新数据功能
+    * 新增过滤无效请求和数据去重功能
+* 2021-04-06 v2.0.2:
+    * 修复域名搜不到的问题。 :)
+* 2021-04-06 v2.0.1:
+    * 优化搜索结果，去除重复数据。  
+    * 添加文件上传搜索功能。
+    * 添加指定时间搜索功能。
+    * 优化代码。
+* 2021-01-22 v1.0.5:
+    * 修复TLS解构解析不一致的问题。
+    * 修复命令行工具被杀软报毒问题。
+* 2021-01-15 v1.0.4:
+    * 优化title显示，删除不可见字符。
+    * host命令新增地理位置、设备信息和更新时间字段。
+    * 修复域名查询，出现无关域名的问题。
+* 2021-01-08 v1.0.3:
+    * 修复init命令bug
+    * 新增证书域名提取。
+* 2020-12-25 v1.0.2 : 
+    * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
-- 2022-09-16 v2.2:
-  - 添加批量查询的功能
-  - 读取 txt 中查询语句，将结果发回到新的 txt 中
-- 2022-08-25 v2.1:
-  - 优化新增排除 cdn、排除蜜罐、显示最新数据参数
-  - 新增 workflows 工作流打包成 release
-- 2021-08-12 v2.0.3:
-  - 新增排除蜜罐、排除 CDN、使用最新数据功能
-  - 新增过滤无效请求和数据去重功能
-- 2021-04-06 v2.0.2:
-  - 修复域名搜不到的问题。 :)
-- 2021-04-06 v2.0.1:
-  - 优化搜索结果，去除重复数据。
-  - 添加文件上传搜索功能。
-  - 添加指定时间搜索功能。
-  - 优化代码。
-- 2021-01-22 v1.0.5:
-  - 修复 TLS 解构解析不一致的问题。
-  - 修复命令行工具被杀软报毒问题。
-- 2021-01-15 v1.0.4:
-  - 优化 title 显示，删除不可见字符。
-  - host 命令新增地理位置、设备信息和更新时间字段。
-  - 修复域名查询，出现无关域名的问题。
-- 2021-01-08 v1.0.3:
-  - 修复 init 命令 bug
-  - 新增证书域名提取。
-- 2020-12-25 v1.0.2 :
-  - 添加 info 和 honeypot 子命令，可以查看个人信息和进行蜜罐识别。
 
 ## 问题反馈
 
@@ -240,10 +243,18 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -c, --cdn <NUMBER>               Exclude cdn data when parameter is 1,Not excluded by default
+    -d, --deduplication <NUMBER>     When the parameter is 1, data deduplication is performed, and no deduplication is
+                                     performed by default.
     -f, --filter <TYPE>              Filter search results with more regular expressions.
                                      Example: quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version:
                                      (.*)"
+    -r, --filter_request <NUMBER>    When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and
+                                     other request data, the default is not filtered
+    -m, --honey_jar <NUMBER>         Exclude honey_jar data when parameter is 1,Not excluded by default
+    -l, --latest_data <NUMBER>       Display latest data when parameter is 1,Not up to date by default
     -o, --output <FILENAME>          Save the host information in the given file (append if file exists).
+    -q, --query_file <FILENAME>      Quake Querystring file; Example: quake search -q test.txt
         --size <NUMBER>              The size of the number of responses, up to a maximum of 100 (Default 10).
         --start <NUMBER>             Starting position of the query (Default 0).
     -e, --end_time <TIME END>        Search end time
@@ -256,7 +267,7 @@ OPTIONS:
                                      Example: quake search -u ips.txt
 
 ARGS:
-    <query_string>    Quake Querystring
+    <query_string>    Quake Querystring; Example: quake search 'port:80'
 ```
 
 搜索功能相当于在 Quake 的搜索框中进行搜索，支持 Quake 的搜索语法。start/size 支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
@@ -264,6 +275,14 @@ ARGS:
 -u --upload 上传一个 IP 列表(不超过 1000 条)，进行批量查询。
 
 ##### Example：
+```
+╰─>$ ./quake search -q query.txt -o result.txt
+[+] Search with ip:"122.xxx.xxx.6" OR domain:"xxxxx.com"
+[+] Data time again 2021-09-19 18:12:31 to 2022-09-19 18:12:31.
+[+] Successful.
+[+] count: 10   total: 15385
+[+] Successfully saved 10 pieces of data to result.txt
+```
 
 ```
 ╰─>$ ./quake search -u ips.txt
