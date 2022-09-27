@@ -1,7 +1,7 @@
 pub mod quake {
     // use log::{debug, error, info};
     use crate::api::ApiKey;
-    use crate::common::{AggService, Host, Output, Service};
+    use crate::common::{AggService, Host, Output, Scroll, Service};
     use ansi_term::Colour::Red;
     use chrono::{Duration, Local, NaiveDate};
     use regex::Regex;
@@ -13,7 +13,7 @@ pub mod quake {
     use std::{fs, io};
 
     //BaseUrl is the basis for all of our api requests.
-    const BASE_URL: &'static str = "https://quake.360.cn";
+    const BASE_URL: &'static str = "https://quake.360.net";
 
     pub struct Quake {
         api_key: String,
@@ -164,7 +164,6 @@ pub mod quake {
         }
 
 
-
         pub fn search(&self, service: Service) -> Result<Value, serde_json::Error> {
             let mut url = String::new();
             url.push_str(BASE_URL);
@@ -208,6 +207,174 @@ pub mod quake {
             Ok(response)
         }
 
+        pub fn get_scroll_data(&self, scroll: Scroll) -> String {
+            let mut url = String::new();
+            url.push_str(BASE_URL);
+            url.push_str("/api/v3/scroll/quake_service");
+            let client = reqwest::blocking::Client::new();
+            let post_data: Map<String, Value> = Self::get_scroll_post_data(scroll);
+            let resp: Response = match client
+                .post(&url)
+                .headers(self.header())
+                .json(&post_data)
+                .send() {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            let res = match resp.text() {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            res
+        }
+
+        pub fn init_scroll(
+            query_string: &str,
+            size: i32,
+            time_start: &str,
+            time_end: &str,
+            cdn: i32,
+            mg: i32,
+            zxsj: i32,
+            wxqq: i32,
+            sjqc: i32,
+            pagination_id: &str,
+        ) -> Scroll {
+            let mut s = Scroll {
+                query: "".to_string(),
+                size,
+                ignore_cache: false,
+                pagination_id: "".to_string(),
+                start_time: "".to_string(),
+                end_time: "".to_string(),
+                ip_list: vec![],
+                shortcuts: vec![],
+            };
+            if cdn == 1 {
+                s.shortcuts
+                    .push(Value::String("612f5a5ad6b3bdb87961727f".to_string()));
+            }
+            if mg == 1 {
+                s.shortcuts
+                    .push(Value::String("610ce2adb1a2e3e1632e67b1".to_string()));
+            }
+            if zxsj == 1 {
+                s.ignore_cache = true;
+            }
+            if wxqq == 1 {
+                s.shortcuts
+                    .push(Value::String("62bc12b70537d96695680ce5".to_string()));
+            }
+            if sjqc == 1 {
+                s.shortcuts
+                    .push(Value::String("610ce2fbda6d29df72ac56eb".to_string()));
+            }
+            let (local, one_years_ago) = Self::getdate();
+            if time_start == "" && time_end == "" {
+                s.start_time = one_years_ago;
+                s.end_time = local;
+            } else if time_start != "" && time_end == "" {
+                s.start_time = time_start.to_string();
+                s.end_time = local;
+            } else if time_start == "" && time_end != "" {
+                s.start_time = Self::getdate_for_manual(time_end);
+                s.end_time = time_end.to_string();
+            } else if time_start != "" && time_end != "" {
+                s.start_time = time_start.to_string();
+                s.end_time = time_end.to_string();
+            }
+            if query_string != "" {
+                s.query = format!("{}", query_string);
+            } else {
+                Output::info(&format!("Search for {} IPs", s.ip_list.len()));
+            }
+            if pagination_id != ""{
+                s.pagination_id = format!("{}", pagination_id);
+            }
+            // Output::info(&format!(
+            //     "Data time again {} to {}.",
+            //     s.start_time, s.end_time
+            // ));
+            s
+        }
+
+        pub fn query_for_scroll(
+            query_string: &str,
+            size: i32,
+            time_start: &str,
+            time_end: &str,
+            cdn: i32,
+            mg: i32,
+            zxsj: i32,
+            wxqq: i32,
+            sjqc: i32,
+        ) -> Vec<Value> {
+            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
+            let response = match Quake::new(res).scroll(query_string,size,time_start,time_end,cdn,mg,zxsj,wxqq,sjqc) {
+                Ok(response) => response,
+                Err(e) => {
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            response
+        }
+
+        pub fn scroll(
+            &self,
+            query_string: &str,
+            size: i32,
+            time_start: &str,
+            time_end: &str,
+            cdn: i32,
+            mg: i32,
+            zxsj: i32,
+            wxqq: i32,
+            sjqc: i32) -> Result<Vec<Value>, serde_json::Error> {
+            let scroll = Self::init_scroll(query_string, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc, "");
+            let res = Self::get_scroll_data(self, scroll);
+            let response: Value = serde_json::from_str(&res)?;
+            let code = response["code"].as_i64().unwrap() as i32;
+            let message = response["message"].as_str().unwrap();
+            if code != 0 {
+                Output::error(&format!("Query failed: {}", message));
+                std::process::exit(1);
+            }
+            let data_array = response["data"].as_array().unwrap();
+            let pagination_id = response["meta"]["pagination_id"].as_str().unwrap();
+            let mut data_len = data_array.len();
+            let mut all_data = Vec::new();
+
+            // all_data.append(&mut data_array);
+            all_data.extend(data_array.iter().cloned());
+
+            while data_len != 0 && (data_len as i32) >= size {
+
+                let s_scroll = Self::init_scroll(query_string, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc, pagination_id);
+                let res_scroll = Self::get_scroll_data(self, s_scroll);
+                let responses: Value = serde_json::from_str(&res_scroll)?;
+                let  data_array_for_while = responses["data"].as_array().unwrap();
+                // all_data.append(&mut data_array_for_while);
+                all_data.extend(data_array_for_while.iter().cloned());
+                data_len = data_array_for_while.len();
+            }
+            Ok(all_data)
+        }
+
         pub fn show(
             value: Value,
             showdata: bool,
@@ -222,6 +389,116 @@ pub mod quake {
             let re = Regex::new(filter).unwrap();
             for i in 0..count {
                 let data_value = value["data"][i].as_object().unwrap();
+                let title = data_value["service"]["http"]["title"]
+                    .as_str()
+                    .unwrap_or("")
+                    .replace("\"", "")
+                    .replace("\t", "")
+                    .replace("\n", "")
+                    .replace("\r", "");
+                let domain = data_value["service"]["http"]["host"]
+                    .as_str()
+                    .unwrap_or("")
+                    .replace("\"", "")
+                    .replace("\t", "")
+                    .replace("\n", "")
+                    .replace("\r", "");
+                let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
+                let port = &data_value["port"];
+                let country = data_value["location"]["country_cn"].as_str().unwrap_or("");
+                let province = data_value["location"]["province_cn"].as_str().unwrap_or("");
+                let city = data_value["location"]["city_cn"].as_str().unwrap_or("");
+                let owner = data_value["location"]["owner"].as_str().unwrap_or("");
+                let time = data_value["time"].as_str().unwrap_or("");
+                let ssl: &str = match data_value["service"]["tls"]["server_certificates"]
+                    ["certificate"]["parsed"]["subject"]["common_name"]
+                    .as_array()
+                {
+                    Some(ssl) => ssl[0].as_str().unwrap_or(""),
+                    None => match data_value["service"]["tls"]["handshake_log"]
+                        ["server_certificates"]["certificate"]["parsed"]["subject"]["common_name"]
+                        .as_array()
+                    {
+                        Some(ssl) => ssl[0].as_str().unwrap_or(""),
+                        None => "",
+                    },
+                };
+                let mut regex_data = String::new();
+                if filter != "" {
+                    let cert = data_value["service"]["cert"].as_str().unwrap_or("");
+                    let response = data_value["service"]["response"].as_str().unwrap_or("");
+                    let http_body = data_value["service"]["http"]["body"].as_str().unwrap_or("");
+                    let http_header = data_value["service"]["http"]["response_headers"]
+                        .as_str()
+                        .unwrap_or("");
+                    regex_data.push_str(cert);
+                    regex_data.push_str(response);
+                    regex_data.push_str(http_body);
+                    regex_data.push_str(http_header);
+                }
+                let regex_res = match re.find(regex_data.as_str()) {
+                    Some(res) => res.as_str(),
+                    None => "",
+                };
+                let mut f: String = String::new();
+                for data in data_type.iter_mut() {
+                    if data == &"title" {
+                        f.push_str(&format!("{}\t", title));
+                    }
+                    if data == &"ip" {
+                        f.push_str(&format!("{}\t", ip));
+                    }
+                    if data == &"port" {
+                        f.push_str(&format!("{}\t", port));
+                    }
+                    if data == &"country" {
+                        f.push_str(&format!("{}\t", country));
+                    }
+                    if data == &"province" {
+                        f.push_str(&format!("{}\t", province));
+                    }
+                    if data == &"city" {
+                        f.push_str(&format!("{}\t", city));
+                    }
+                    if data == &"owner" {
+                        f.push_str(&format!("{}\t", owner));
+                    }
+                    if data == &"time" {
+                        f.push_str(&format!("{}\t", time));
+                    }
+                    if data == &"domain" {
+                        if !ipaddress::IPAddress::is_valid(domain.clone()) {
+                            f.push_str(&format!("{}\t", domain));
+                        } else {
+                            f.push_str(&format!("{}\t", ""));
+                        }
+                    }
+                    if data == &"ssldomain" {
+                        f.push_str(&format!("{}\t", ssl))
+                    }
+                }
+                if showdata {
+                    print!("{}", f);
+                    println!("{}", Red.bold().paint(regex_res).to_string().as_str());
+                } else {
+                    f.push_str(regex_res);
+                }
+                res.push(f);
+            }
+            res
+        }
+
+        pub fn show_scroll(
+            value: Vec<Value>,
+            showdata: bool,
+            filter: &str,
+            mut data_type: Vec<&str>,
+        ) -> Vec<String> {
+            let mut res: Vec<String> = Vec::new();
+            let re = Regex::new(filter).unwrap();
+            let count = value.len();
+            for i in 0..count {
+                let data_value: &Map<String, Value> = value[i].as_object().unwrap();
                 let title = data_value["service"]["http"]["title"]
                     .as_str()
                     .unwrap_or("")
@@ -507,6 +784,25 @@ pub mod quake {
             Ok(response)
         }
 
+        pub fn save_scroll_data(
+            filename: &str,
+            content: Vec<Value>,
+            filter: &str,
+            data_type: Vec<&str>,
+        ) -> io::Result<i32> {
+            let mut f = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(filename)?;
+            let hosts = Self::show_scroll(content, false, filter, data_type);
+            let mut count = 0;
+            for host in hosts {
+                f.write_all(format!("{}\n", host).as_bytes())?;
+                count += 1;
+            }
+            Ok(count)
+        }
+
         pub fn honeypot(ip: String) {
             Output::info(&format!("Search with {}", ip));
             let mut query = String::from("app: \"*蜜罐*\" AND ip:");
@@ -614,28 +910,28 @@ pub mod quake {
             }
         }
 
-        // fn get_scroll_post_data(s:Scroll) -> Map<String, Value> {
-        //     let mut data: Map<String, Value> = Map::new();
-        //     data.insert("start".to_string(), Value::Number(Number::from(s.start)));
-        //     data.insert("size".to_string(), Value::Number(Number::from(s.size)));
-        //     data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
-        //     data.insert("start_time".to_string(), Value::String(s.start_time));
-        //     data.insert("end_time".to_string(), Value::String(s.end_time));
-        //     data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
-        //     if !s.ip_list.is_empty() {
-        //         data.insert(
-        //             "query".to_string(),
-        //             Value::String("is_latest:true".to_string()),
-        //         );
-        //         data.insert("ip_list".to_string(), Value::Array(s.ip_list));
-        //     } else {
-        //         data.insert("query".to_string(), Value::String(s.query));
-        //     }
-        //     if !s.pagination_id.is_empty() {
-        //         data.insert("pagination_id".to_string(), Value::String(s.pagination_id));
-        //     }
-        //     data
-        // }
+        fn get_scroll_post_data(s: Scroll) -> Map<String, Value> {
+            let mut data: Map<String, Value> = Map::new();
+            data.insert("size".to_string(), Value::Number(Number::from(s.size)));
+            data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
+            data.insert("start_time".to_string(), Value::String(s.start_time));
+            data.insert("end_time".to_string(), Value::String(s.end_time));
+            data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
+            if !s.ip_list.is_empty() {
+                data.insert(
+                    "query".to_string(),
+                    Value::String("is_latest:true".to_string()),
+                );
+                data.insert("ip_list".to_string(), Value::Array(s.ip_list));
+            } else {
+                data.insert("query".to_string(), Value::String(s.query));
+            }
+            if !s.pagination_id.is_empty() {
+                data.insert("pagination_id".to_string(), Value::String(s.pagination_id));
+            }
+
+            data
+        }
 
         fn get_service_post_data(s: Service) -> Map<String, Value> {
             let mut data: Map<String, Value> = Map::new();
@@ -688,7 +984,7 @@ pub mod quake {
             file.read_to_string(&mut contents).unwrap();
             // print!("{:?}",contents);
             let contents_or = contents.replace("\n", " OR ");
-            let query = &contents_or[0..contents_or.len()-4];
+            let query = &contents_or[0..contents_or.len() - 4];
             query.to_string()
         }
 
