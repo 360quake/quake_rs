@@ -26,7 +26,6 @@ pub struct Service {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Scroll {
     pub query: String,
-    pub start: i32,
     pub size: i32,
     pub ignore_cache: bool,
     pub pagination_id: String,
@@ -64,7 +63,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = App::new("Quake Command-Line Application")
-            .version("2.2.1")
+            .version("2.2.2")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand(
@@ -503,28 +502,55 @@ impl ArgParse {
                     .split(",")
                     .collect::<Vec<&str>>();
                 let filter = search_match.value_of("filter").unwrap_or("");
-                let response = Quake::query(
-                    query, upload, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
-                );
-                let output = match search_match.value_of("output") {
-                    Some(name) => name,
-                    None => {
-                        Quake::show(response, true, filter, data_type);
-                        std::process::exit(0);
+                if query_file == "" {
+                    let response = Quake::query(
+                        query, upload, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
+                    );
+                    let output = match search_match.value_of("output") {
+                        Some(name) => name,
+                        None => {
+                            Quake::show(response, true, filter, data_type);
+                            std::process::exit(0);
+                        }
+                    };
+                    // save to file.
+                    match Quake::save_search_data(output, response, filter, data_type) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                }else {
+                    if query != "" {
+                        Output::info(&format!("Search with {}", query));
                     }
-                };
-                // save to file.
-                match Quake::save_search_data(output, response, filter, data_type) {
-                    Ok(count) => {
-                        Output::success(&format!(
-                            "Successfully saved {} pieces of data to {}",
-                            count, output
-                        ));
-                    }
-                    Err(e) => {
-                        Output::error(&format!("Data saving failure:{}", e.to_string()));
-                    }
-                };
+                    let response = Quake::query_for_scroll(query, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc);
+                    // Quake::show_scroll(response,true,filter, data_type);
+                    let output = match search_match.value_of("output") {
+                        Some(name) => name,
+                        None=>{
+                            Quake::show_scroll(response,true,filter, data_type);
+                            std::process::exit(0);
+                        }
+                    };
+                    // save to file.
+                    match Quake::save_scroll_data(output, response, filter, data_type) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                }
             }
             ("info", Some(_)) => {
                 Quake::show_info();
