@@ -4,15 +4,15 @@
 
 1. 直接下载即可使用
 
-    https://github.com/360quake/quake_rs/releases/
+   https://github.com/360quake/quake_rs/releases/
 
 2. 或者本地编译：
-    
-    ```
-    // 安装rust后使用cargo编译
-    cargo  build --release
-    ```
-   
+
+   ```
+   // 安装rust后使用cargo编译
+   cargo  build --release
+   ```
+
 ## 更新日志
 * 2022-09-27 v2.2.2:
   * 修复code转i32时出现unwrap的bug
@@ -49,10 +49,13 @@
 * 2020-12-25 v1.0.2 : 
     * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
+
 ## 问题反馈
+
 请添加微信：quake_360 邀您加入技术交流群 :)
 
 ## 使用方法
+
 ```bash
 Quake Command-Line Application 1.0.4
 Author: soap  <imelloit@gmail.com>
@@ -74,14 +77,17 @@ SUBCOMMANDS:
     init        Initialize the Quake command-line
     search      Search the Quake database
 ```
+
 #### 1. 初始化
 
-*ApiKey请到Quake个人中心查看*
+_ApiKey 请到 Quake 个人中心查看_
 
 ```bash
 quake init apikey
 ```
+
 #### 2. 域名查询
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:29:44 PM]─[G:master=]
 ╰─>$ ./quake domain
@@ -105,10 +111,12 @@ OPTIONS:
 ARGS:
     <DOMAIN_NAME>    The domain name to be queried.163.251.254 extsign-b.browser.360.cn
 ```
-域名查询可以查询某个域名的子域名和相似域名，或者域名周含有某些关键子的域名，如：oa、vpn等，可以设置start和size参数进行翻页，可以使用-o/--output，将查询结果保存至文件。
--t参数可以控制显示的字段，有domain、ip、端口和站点title等。
+
+域名查询可以查询某个域名的子域名和相似域名，或者域名周含有某些关键子的域名，如：oa、vpn 等，可以设置 start 和 size 参数进行翻页，可以使用-o/--output，将查询结果保存至文件。
+-t 参数可以控制显示的字段，有 domain、ip、端口和站点 title 等。
 
 ##### Example：
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:33:10 PM]─[G:master=]
 ╰─>$ ./quake domain 360.cn --start 10 --size 10
@@ -143,7 +151,8 @@ ARGS:
 180.163.235.141 80      up-q.f.360.cn   403 Forbidden
 ```
 
-#### 3. IP查询
+#### 3. IP 查询
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:35:45 PM]─[G:master=]
 ╰─>$ ./quake host
@@ -165,9 +174,11 @@ OPTIONS:
 ARGS:
     <ip>     View all available information for an IP address
 ```
-可以快速查询某个IP或IP段下开放的端口和服务。start/size参数支持翻页，-o/--output支持将搜索结果保存至文件。
+
+可以快速查询某个 IP 或 IP 段下开放的端口和服务。start/size 参数支持翻页，-o/--output 支持将搜索结果保存至文件。
 
 ##### Example：
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[10:14:57 PM]─[G:master=]
 ╰─>$ ./quake host 5.188.34.101
@@ -217,12 +228,14 @@ IP: 5.188.34.218        Country: Singapore      Province: Singapore     City: Si
 | 3306                 mysql    2020-12-28T02:10:44.445Z
 ...
 ```
+
 #### 3. 搜索查询
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:44:34 PM]─[G:master=]
 ╰─>$ ./quake search
-╰─>$ ./quake search 
-quake-search 
+╰─>$ ./quake search
+quake-search
 Search the Quake database
 
 USAGE:
@@ -259,9 +272,10 @@ OPTIONS:
 ARGS:
     <query_string>    Quake Querystring; Example: quake search 'port:80'
 ```
-搜索功能相当于在Quake的搜索框中进行搜索，支持Quake的搜索语法。start/size支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
--e --end_time 搜索结束时间  -s --start-time 搜索开始时间。指定某段时间内返回的数据。
--u --upload 上传一个IP列表(不超过1000条)，进行批量查询。
+
+搜索功能相当于在 Quake 的搜索框中进行搜索，支持 Quake 的搜索语法。start/size 支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
+-e --end_time 搜索结束时间 -s --start-time 搜索开始时间。指定某段时间内返回的数据。
+-u --upload 上传一个 IP 列表(不超过 1000 条)，进行批量查询。
 
 ##### Example：
 ```
@@ -278,15 +292,15 @@ ARGS:
 [+] Search for 44 IPs
 [+] Successful.
 [+] count: 10 	total: 81
-165.229.11.173	443	
-123.194.137.183	80	
-123.194.137.183	443	
-112.90.184.180	8443	
-112.90.184.180	8081	
-106.75.10.72	443	
-112.90.184.180	27017	
-165.229.11.173	80	
-123.194.137.183	1723	
+165.229.11.173	443
+123.194.137.183	80
+123.194.137.183	443
+112.90.184.180	8443
+112.90.184.180	8081
+106.75.10.72	443
+112.90.184.180	27017
+165.229.11.173	80
+123.194.137.183	1723
 123.194.137.183	23
 ```
 
@@ -295,15 +309,15 @@ ARGS:
 [+] Search with port:80
 [+] Successful.
 [+] count: 10 	total: 118182073
-185.8.172.250	80	
-142.111.218.92	80	
-142.111.241.223	80	
-185.8.100.216	80	
-217.62.137.0	80	
-217.58.176.17	80	
-179.43.148.203	80	
-185.69.223.29	80	
-185.69.240.170	80	
+185.8.172.250	80
+142.111.218.92	80
+142.111.241.223	80
+185.8.100.216	80
+217.62.137.0	80
+217.58.176.17	80
+179.43.148.203	80
+185.69.223.29	80
+185.69.240.170	80
 217.31.44.144	80
 ```
 
@@ -324,7 +338,8 @@ ARGS:
 23.28.247.211   443     Outlook Web App
 182.93.16.236   443     Outlook Web App
 ```
-查看ssl证书中的Common Name（包含域名等信息）。
+
+查看 ssl 证书中的 Common Name（包含域名等信息）。
 
 ```bash
 ┬─[kali@kali:~/quake_rs]─[02:29:15 AM]─[G:master=]
@@ -345,7 +360,8 @@ ARGS:
 ```
 
 正则表达式可以灵活运用，匹配想匹配的任何数据。
-正则匹配exchange内部版本。
+正则匹配 exchange 内部版本。
+
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:47:32 PM]─[G:master=]
 ╰─>$ ./quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version: (.*)"
@@ -383,7 +399,9 @@ ARGS:
 ```
 
 #### 4. 用户信息
+
 可以查看用户信息
+
 ```
 ┬─[kali@kali:~]─[03:51:18 AM]
 ╰─>$ quake info
@@ -397,7 +415,9 @@ ARGS:
 ```
 
 #### 5. 蜜罐识别
+
 可以识别部分蜜罐系统。
+
 ```
 ┬─[kali@kali:~]─[04:40:00 AM]
 ╰─>$ quake honeypot 93.89.146.23
