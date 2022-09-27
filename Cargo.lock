@@ -718,7 +718,7 @@ dependencies = [
 
 [[package]]
 name = "quake"
-version = "2.0.2"
+version = "2.2.2"
 dependencies = [
  "ansi_term",
  "chrono",
