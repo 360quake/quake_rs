@@ -15,40 +15,44 @@
 
 ## 更新日志
 
-- 2022-09-27 v2.2.2:
-  - 修复 code 转 i32 时出现 unwrap 的 bug
-  - 完成批量查询自动翻页功能
-- 2022-09-19 v2.2.1:
-  - 优化批量查询的功能，读取 txt 中查询语句，将结果发回到新的 txt 中
-  - 删除部分冗余代码
-- 2022-09-16 v2.2:
-  - 添加批量查询的功能
-  - 读取 txt 中查询语句，将结果发回到新的 txt 中
-- 2022-08-25 v2.1:
-  - 优化新增排除 cdn、排除蜜罐、显示最新数据参数
-  - 新增 workflows 工作流打包成 release
-- 2021-08-12 v2.0.3:
-  - 新增排除蜜罐、排除 CDN、使用最新数据功能
-  - 新增过滤无效请求和数据去重功能
-- 2021-04-06 v2.0.2:
-  - 修复域名搜不到的问题。 :)
-- 2021-04-06 v2.0.1:
-  - 优化搜索结果，去除重复数据。
-  - 添加文件上传搜索功能。
-  - 添加指定时间搜索功能。
-  - 优化代码。
-- 2021-01-22 v1.0.5:
-  - 修复 TLS 解构解析不一致的问题。
-  - 修复命令行工具被杀软报毒问题。
-- 2021-01-15 v1.0.4:
-  - 优化 title 显示，删除不可见字符。
-  - host 命令新增地理位置、设备信息和更新时间字段。
-  - 修复域名查询，出现无关域名的问题。
-- 2021-01-08 v1.0.3:
-  - 修复 init 命令 bug
-  - 新增证书域名提取。
-- 2020-12-25 v1.0.2 :
-  - 添加 info 和 honeypot 子命令，可以查看个人信息和进行蜜罐识别。
+* 2022-10-09 v2.2.3:
+  * 完成host批量查询功能
+* 2022-09-27 v2.2.2:
+  * 修复code转i32时出现unwrap的bug
+  * 完成批量查询自动翻页功能
+* 2022-09-19 v2.2.1:
+  * 优化批量查询的功能，读取txt中查询语句，将结果发回到新的txt中
+  * 删除部分冗余代码
+* 2022-09-16 v2.2:
+  * 添加批量查询的功能
+  * 读取txt中查询语句，将结果发回到新的txt中
+* 2022-08-25 v2.1:
+    * 优化新增排除cdn、排除蜜罐、显示最新数据参数
+    * 新增workflows工作流打包成release
+* 2021-08-12 v2.0.3:
+    * 新增排除蜜罐、排除CDN、使用最新数据功能
+    * 新增过滤无效请求和数据去重功能
+* 2021-04-06 v2.0.2:
+    * 修复域名搜不到的问题。 :)
+* 2021-04-06 v2.0.1:
+    * 优化搜索结果，去除重复数据。  
+    * 添加文件上传搜索功能。
+    * 添加指定时间搜索功能。
+    * 优化代码。
+* 2021-01-22 v1.0.5:
+    * 修复TLS解构解析不一致的问题。
+    * 修复命令行工具被杀软报毒问题。
+* 2021-01-15 v1.0.4:
+    * 优化title显示，删除不可见字符。
+    * host命令新增地理位置、设备信息和更新时间字段。
+    * 修复域名查询，出现无关域名的问题。
+* 2021-01-08 v1.0.3:
+    * 修复init命令bug
+    * 新增证书域名提取。
+* 2020-12-25 v1.0.2 : 
+    * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
+
+
 
 ## 问题反馈
 
@@ -168,6 +172,7 @@ FLAGS:
 
 OPTIONS:
     -o, --output <FILENAME>    Save the host information in the given file (append if file exists).
+    -q, --query_host_file <FILENAME>    Quake Host file (Only support --size); Example: quake search -q hosts.txt
         --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
         --start <NUMBER>       Starting position of the query (Default 0).
 
@@ -227,13 +232,55 @@ IP: 5.188.34.218        Country: Singapore      Province: Singapore     City: Si
 | 25                    smtp    2020-12-21T12:54:12.368Z
 | 3306                 mysql    2020-12-28T02:10:44.445Z
 ...
+
+┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
+╰─>$ ./quake host -q host.txt -o host_result.txt
+[+] Search with ip:"111.229.238.63" OR ip:"111.229.238.64" OR ip:"111.229.231.63/26" OR ip:"111.229.232.63/24"
+[+] Successfully saved 284 pieces of data to host_result.txt
+
+┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
+╰─>$ ./quake host -q host.txt
+[+] Search with ip:"111.229.238.63" OR ip:"111.229.238.64" OR ip:"111.229.231.63/26" OR ip:"111.229.232.63/24"
+IP: 111.229.231.62      Country: China  Province: Shanghai      City: Shanghai City
+| Port              Protocol                    time
+| 8080                          2020-03-05T22:12:19.869Z
+| 10134            orcus-rat    2020-05-14T20:49:03.507Z
+| 12000            entextxid    2021-10-12T04:13:47.479Z
+| 10626                 http    2021-10-12T04:13:48.936Z
+| 1112                   icp    2021-10-12T04:13:51.914Z
+| 10778                 http    2021-10-12T04:13:50.894Z
+| 30089                 http    2022-07-07T07:37:31.263Z
+| 51001                 http    2022-09-23T07:56:39.626Z
+| 51002                 http    2022-09-23T07:33:44.401Z
+| 52869                 http    2022-09-27T11:40:48.949Z
+| 8091                  http    2022-10-01T20:46:58.201Z
+| 11712                 http    2022-10-02T16:37:29.825Z
+| 11210                 http    2022-10-02T17:07:48.967Z
+| 10020                 http    2022-10-03T17:57:45.262Z
+| 9943                  http    2022-10-04T08:06:36.923Z
+| 7070                  http    2022-10-04T16:09:54.222Z
+| 12028              unknown    2022-10-06T12:25:34.912Z
+| 1025                  http    2022-10-07T16:54:59.403Z
+
+IP: 111.229.231.5       Country: China  Province: Shanghai      City: Shanghai City
+| Port              Protocol                    time
+| 80                    http    2020-03-04T07:42:10.798Z
+| 8888                  http    2020-01-10T21:19:47Z
+| 88                    http    2021-12-06T14:26:32.224Z
+| 110                   http    2022-09-03T21:56:02.495Z
+| 2121                  http    2022-09-16T23:20:46.420Z
+| 119                   http    2022-09-21T22:05:34.596Z
+| 25                    http    2022-09-27T08:17:06.244Z
+| 49665                msrpc    2022-10-06T02:45:55.275Z
+| 23                    http    2022-10-07T09:19:16.701Z
+...
+
 ```
 
 #### 3. 搜索查询
 
 ```bash
 ┬─[kali@kali:~/q/t/release]─[09:44:34 PM]─[G:master=]
-╰─>$ ./quake search
 ╰─>$ ./quake search
 quake-search
 Search the Quake database
