@@ -1,7 +1,7 @@
 pub mod quake {
     // use log::{debug, error, info};
     use crate::api::ApiKey;
-    use crate::common::{AggService, Host, Output, Scroll, Service};
+    use crate::common::{AggService, Host, Output, Scroll, ScrollHost, Service};
     use ansi_term::Colour::Red;
     use chrono::{Duration, Local, NaiveDate};
     use regex::Regex;
@@ -70,6 +70,192 @@ pub mod quake {
                 std::process::exit(1);
             }
             Ok(response)
+        }
+
+        pub fn query_host_by_scroll(
+            query_string:&str,
+            size: i32
+        ) -> Vec<Value> {
+            Output::info(&format!("Search with {}", query_string));
+            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
+            let response = match Quake::new(res).search_host_by_scroll(query_string,size) {
+                Ok(response) => response,
+                Err(e) => {
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            response
+        }
+
+        pub fn show_host_by_scroll(
+            value:Vec<Value>,
+            show_data:bool,
+        ) -> Vec<String>{
+            let mut res: Vec<String> = Vec::new();
+            let count = value.len();
+            for i in 0..count {
+                let data_value: &Map<String, Value> = value[i].as_object().unwrap();
+                let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
+                let location = data_value["location"].as_object().unwrap();
+                let country = location["country_en"].as_str().unwrap_or("");
+                let province = location["province_en"].as_str().unwrap_or("");
+                let city = location["city_en"].as_str().unwrap_or("");
+                let service = data_value["services"].as_array().unwrap();
+                let mut info = String::new();
+                info.push_str(&format!(
+                    "IP: {}\tCountry: {}\tProvince: {}\tCity: {}\n",
+                    ip, country, province, city
+                ));
+                info.push_str(&format!(
+                    "{port}\t{protocol:>width$}\t{time:>width$}\n",
+                    port = "| Port",
+                    protocol = "Protocol",
+                    time = "time",
+                    width = 20
+                ));
+                for s in service {
+                    let protocol = s["name"].as_str().unwrap().replace("\"", "");
+                    let service_time = s["time"]
+                        .as_str()
+                        .unwrap()
+                        .replace("\"", "")
+                        .replace("unknown", "");
+                    info.push_str(&format!(
+                        "| {port}\t{protocol:>width$}\t{time:>width$}\n",
+                        port = s["port"],
+                        protocol = protocol,
+                        time = service_time,
+                        width = 20
+                    ));
+                }
+                info.push_str("\n");
+                if show_data {
+                    println!("{}", info);
+                }
+                res.push(info);
+            }
+            res
+        }
+
+        pub fn save_host_by_scroll_data(
+            filename: &str,
+            content: Vec<Value>,
+        ) -> io::Result<i32> {
+            let mut f = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(filename)?;
+            let hosts = Self::show_host_by_scroll(content, false);
+            let mut count = 0;
+            for host in hosts {
+                f.write_all(format!("{}\n", host).as_bytes())?;
+                count += 1;
+            }
+            Ok(count)
+        }
+
+        pub fn search_host_by_scroll(
+            &self,
+            query_string:&str,
+            size: i32) -> Result<Vec<Value>, serde_json::Error> {
+            let sh = Self::init_scroll_host(query_string,size,"");
+            let res = Self::get_scroll_data_by_host(self, sh);
+            let response: Value = serde_json::from_str(&res)?;
+            let code = response["code"].as_i64().unwrap() as i32;
+            let message = response["message"].as_str().unwrap();
+            if code != 0 {
+                Output::error(&format!("Query failed: {}", message));
+                std::process::exit(1);
+            }
+            let data_array = response["data"].as_array().unwrap();
+            let pagination_id = response["meta"]["pagination_id"].as_str().unwrap();
+            let mut data_len = data_array.len();
+            let mut all_data = Vec::new();
+
+            all_data.extend(data_array.iter().cloned());
+
+            while data_len != 0 && (data_len as i32) >= size {
+
+                let s_scroll = Self::init_scroll_host(query_string, size, pagination_id);
+                let res_scroll = Self::get_scroll_data_by_host(self, s_scroll);
+                let responses: Value = serde_json::from_str(&res_scroll)?;
+                let  data_array_for_while = responses["data"].as_array().unwrap();
+                // all_data.append(&mut data_array_for_while);
+                all_data.extend(data_array_for_while.iter().cloned());
+                data_len = data_array_for_while.len();
+            }
+            Ok(all_data)
+        }
+
+        pub fn get_scroll_data_by_host(&self, scrollhost:ScrollHost) -> String{
+            let mut url = String::new();
+            url.push_str(BASE_URL);
+            url.push_str("/api/v3/scroll/quake_host");
+            let client = reqwest::blocking::Client::new();
+            let post_data:Map<String, Value> = Self::get_scrollhost_post_data(scrollhost);
+            let resp: Response = match client
+                .post(&url)
+                .headers(self.header())
+                .json(&post_data)
+                .send() {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            let res = match resp.text() {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            res
+        }
+
+        fn get_scrollhost_post_data(s:ScrollHost) -> Map<String,Value>{
+            let mut data: Map<String, Value> = Map::new();
+            data.insert("size".to_string(), Value::Number(Number::from(s.size)));
+            data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
+            data.insert("query".to_string(), Value::String(s.query));
+            if !s.pagination_id.is_empty() {
+                data.insert("pagination_id".to_string(), Value::String(s.pagination_id));
+            }
+
+            data
+        }
+
+        pub fn init_scroll_host(
+            query_string: &str,
+            size: i32,
+            pagination_id: &str,
+        ) -> ScrollHost {
+            let mut sh = ScrollHost {
+                query: "".to_string(),
+                size,
+                ignore_cache: false,
+                pagination_id: "".to_string(),
+            };
+            if query_string != "" {
+                sh.query = format!("{}", query_string);
+            } else {
+                Output::info(&format!("Search failed"));
+                std::process::exit(1);
+            }
+            if pagination_id != ""{
+                sh.pagination_id = format!("{}", pagination_id);
+            }
+            sh
         }
 
         pub fn query(
@@ -305,10 +491,6 @@ pub mod quake {
             if pagination_id != ""{
                 s.pagination_id = format!("{}", pagination_id);
             }
-            // Output::info(&format!(
-            //     "Data time again {} to {}.",
-            //     s.start_time, s.end_time
-            // ));
             s
         }
 
@@ -988,16 +1170,16 @@ pub mod quake {
             query.to_string()
         }
 
-        // pub fn read_file_domain(filename: String) -> String {
-        //     // 读取文件
-        //     let mut file = fs::File::open(filename).unwrap();
-        //     let mut contents = String::new();
-        //     file.read_to_string(&mut contents).unwrap();
-        //     // print!("{:?}",contents);
-        //     let contents_domains = contents.replace("\n", "\" OR domain:\"");
-        //     let query = &contents_domains[0..contents_domains.len()-13];
-        //     let query_domain = &*("domain:\"".to_owned() + query);
-        //     query_domain.to_string()
-        // }
+        pub fn read_file_host(filename: &str) -> String {
+            // 读取文件
+            let mut file = fs::File::open(filename).unwrap();
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).unwrap();
+            // print!("{:?}",contents);
+            let contents_hosts = contents.replace("\n", "\" OR ip:\"");
+            let query = &contents_hosts[0..contents_hosts.len()-8];
+            let query_host = &*("ip:\"".to_owned() + query);
+            query_host.to_string()
+        }
     }
 }

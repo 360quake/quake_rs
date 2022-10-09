@@ -50,6 +50,17 @@ pub struct Host {
   TODO: Comment
 */
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ScrollHost {
+    pub query: String,
+    pub size: i32,
+    pub pagination_id: String,
+    pub ignore_cache: bool,
+}
+
+/*
+  TODO: Comment
+*/
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AggService {
     pub query: String,
     pub start: i32,
@@ -63,7 +74,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = App::new("Quake Command-Line Application")
-            .version("2.2.2")
+            .version("2.2.3")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand(
@@ -93,6 +104,13 @@ impl ArgParse {
                             .short("o")
                             .long("output")
                             .help("Save the host information in the given file (append if file exists).")
+                            .value_name("FILENAME")
+                    )
+                    .arg(
+                        Arg::with_name("query_host_file")
+                            .short("q")
+                            .long("query_host_file")
+                            .help("Quake Host file(Only support --size); Example: quake search -q hosts.txt")
                             .value_name("FILENAME")
                     )
                     .arg(
@@ -388,14 +406,9 @@ impl ArgParse {
                 };
             }
             ("host", Some(host_match)) => {
-                let ip = match host_match.value_of("ip") {
-                    Some(ip) => ip,
-                    None => {
-                        Output::error(
-                            "Error: You must choose a ip or cidr.\r\nPlease execute -h for help.",
-                        );
-                        std::process::exit(1);
-                    }
+                let query_host_file = match host_match.value_of("query_host_file") {
+                    Some(query_host_file) => query_host_file,
+                    None => "",
                 };
                 let start: i32 = host_match
                     .value_of("start")
@@ -410,27 +423,65 @@ impl ArgParse {
                 if size > 100 {
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
-                let query = &format!("ip:{}", ip);
-                let response = Quake::query_host(query, start, size);
-                let output = match host_match.value_of("output") {
-                    Some(name) => name,
-                    None => {
-                        Quake::show_host(response, true);
-                        std::process::exit(0);
+                if query_host_file == "" {
+                    let ip = match host_match.value_of("ip") {
+                        Some(ip) => ip,
+                        None => {
+                            Output::error(
+                                "Error: You must choose a ip or cidr.\r\nPlease execute -h for help.",
+                            );
+                            std::process::exit(1);
+                        }
+                    };
+                    let query = &format!("ip:{}", ip);
+                    let response = Quake::query_host(query, start, size);
+                    let output = match host_match.value_of("output") {
+                        Some(name) => name,
+                        None => {
+                            Quake::show_host(response, true);
+                            std::process::exit(0);
+                        }
+                    };
+                    // save to file.
+                    match Quake::save_host_data(output, response) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                } else {
+                    let host_string = Quake::read_file_host(query_host_file);
+                    let query = host_string.as_str();
+                    if query == "" {
+                        Output::info(&format!("The host file is None!"));
+                        std::process::exit(1);
                     }
-                };
-                // save to file.
-                match Quake::save_host_data(output, response) {
-                    Ok(count) => {
-                        Output::success(&format!(
-                            "Successfully saved {} pieces of data to {}",
-                            count, output
-                        ));
-                    }
-                    Err(e) => {
-                        Output::error(&format!("Data saving failure:{}", e.to_string()));
-                    }
-                };
+                    let response = Quake::query_host_by_scroll(query, size);
+                    let output = match host_match.value_of("output") {
+                        Some(name) => name,
+                        None => {
+                            Quake::show_host_by_scroll(response, true);
+                            std::process::exit(0);
+                        }
+                    };
+                    // save to file
+                    match Quake::save_host_by_scroll_data(output, response) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                }
             }
             ("search", Some(search_match)) => {
                 let upload = match search_match.value_of("upload") {
@@ -445,13 +496,13 @@ impl ArgParse {
                 let query = match search_match.value_of("query_string") {
                     Some(query) => query,
                     None => {
-                        if upload == "" && query_file == ""{
+                        if upload == "" && query_file == "" {
                             Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
                             std::process::exit(1);
-                        }else if query_file != ""{
+                        } else if query_file != "" {
                             query_string = Quake::read_file_search(query_file);
                             query_string.as_str()
-                        }else {
+                        } else {
                             ""
                         }
                     }
@@ -525,7 +576,7 @@ impl ArgParse {
                             Output::error(&format!("Data saving failure:{}", e.to_string()));
                         }
                     };
-                }else {
+                } else {
                     if query != "" {
                         Output::info(&format!("Search with {}", query));
                     }
@@ -533,8 +584,8 @@ impl ArgParse {
                     // Quake::show_scroll(response,true,filter, data_type);
                     let output = match search_match.value_of("output") {
                         Some(name) => name,
-                        None=>{
-                            Quake::show_scroll(response,true,filter, data_type);
+                        None => {
+                            Quake::show_scroll(response, true, filter, data_type);
                             std::process::exit(0);
                         }
                     };
