@@ -14,7 +14,6 @@
    ```
 
 ## 更新日志
-
 * 2022-10-09 v2.2.3:
   * 完成host批量查询功能
 * 2022-09-27 v2.2.2:
@@ -51,7 +50,6 @@
     * 新增证书域名提取。
 * 2020-12-25 v1.0.2 : 
     * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
-
 
 
 ## 问题反馈
@@ -325,7 +323,6 @@ ARGS:
 -u --upload 上传一个 IP 列表(不超过 1000 条)，进行批量查询。
 
 ##### Example：
-
 ```
 ╰─>$ ./quake search -q query.txt -o result.txt
 [+] Search with ip:"122.xxx.xxx.6" OR domain:"xxxxx.com"

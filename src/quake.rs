@@ -1166,8 +1166,14 @@ pub mod quake {
             file.read_to_string(&mut contents).unwrap();
             // print!("{:?}",contents);
             let contents_or = contents.replace("\n", " OR ");
-            let query = &contents_or[0..contents_or.len() - 4];
-            query.to_string()
+            let contents_end = &contents_or[contents_or.len() - 4..contents_or.len()];
+            if contents_end == " OR "{
+                let query = &contents_or[0..contents_or.len() - 4];
+                query.to_string()
+            }else {
+                let query = &contents_or;
+                query.to_string()
+            }
         }
 
         pub fn read_file_host(filename: &str) -> String {
@@ -1177,9 +1183,17 @@ pub mod quake {
             file.read_to_string(&mut contents).unwrap();
             // print!("{:?}",contents);
             let contents_hosts = contents.replace("\n", "\" OR ip:\"");
-            let query = &contents_hosts[0..contents_hosts.len()-8];
-            let query_host = &*("ip:\"".to_owned() + query);
-            query_host.to_string()
+            let contents_end = &contents_hosts[contents_hosts.len()-8..contents_hosts.len()];
+            if contents_end == " OR ip:\""{
+                let query = &contents_hosts[0..contents_hosts.len()-8];
+                let query_host = &*("ip:\"".to_owned() + query);
+                query_host.to_string()
+            }else {
+                let query = &contents_hosts;
+                let query_host = &*("ip:\"".to_owned() + query);
+                query_host.to_string()
+            }
+
         }
     }
 }
