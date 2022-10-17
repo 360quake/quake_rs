@@ -63,9 +63,9 @@ pub mod quake {
             let res = resp.text().unwrap();
             let response: Value = serde_json::from_str(&res)?;
 
-            let code = response["code"].as_i64().unwrap() as i32;
+            let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -162,9 +162,9 @@ pub mod quake {
             let sh = Self::init_scroll_host(query_string,size,"");
             let res = Self::get_scroll_data_by_host(self, sh);
             let response: Value = serde_json::from_str(&res)?;
-            let code = response["code"].as_i64().unwrap() as i32;
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            let code = response["code"].to_string();
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -384,9 +384,9 @@ pub mod quake {
                 }
             };
             let response: Value = serde_json::from_str(&res)?;
-            let code = response["code"].as_i64().unwrap() as i32;
+            let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -530,9 +530,9 @@ pub mod quake {
             let scroll = Self::init_scroll(query_string, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc, "");
             let res = Self::get_scroll_data(self, scroll);
             let response: Value = serde_json::from_str(&res)?;
-            let code = response["code"].as_i64().unwrap() as i32;
+            let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -957,9 +957,9 @@ pub mod quake {
             };
             let res = resp.text().unwrap();
             let response: Value = serde_json::from_str(&res)?;
-            let code = response["code"].as_i64().unwrap() as i32;
+            let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -1044,9 +1044,9 @@ pub mod quake {
             let res = resp.text().unwrap();
             let response: Value = serde_json::from_str(&res)?;
 
-            let code = response["code"].as_i64().unwrap() as i32;
+            let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
-            if code != 0 {
+            if code != "0" {
                 Output::error(&format!("Query failed: {}", message));
                 std::process::exit(1);
             }
@@ -1190,7 +1190,7 @@ pub mod quake {
                 query_host.to_string()
             }else {
                 let query = &contents_hosts;
-                let query_host = &*("ip:\"".to_owned() + query);
+                let query_host = &*("ip:\"".to_owned() + query  + "\"");
                 query_host.to_string()
             }
 
