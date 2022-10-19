@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Clone test repository
         uses: actions/checkout@v3
-      - uses: ./
+      - uses: xhaiker/rust-release.action@v1.0.3
         name: build ${{ matrix.name }}
         with:
           release: ${{ github.ref_name }}
