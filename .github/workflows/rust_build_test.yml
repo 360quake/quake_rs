@@ -1,0 +1,95 @@
+name: rust_build_test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+env:
+  TEST_TAG: latest-ci-test
+
+jobs:
+  release:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Setup docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: "1.29.2"
+
+      - name: Force Delete Release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true
+          tag_name: ${{ env.TEST_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create/Update tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ env.TEST_TAG }}
+          message: "ci test"
+          force_push_tag: true
+
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TEST_TAG }}
+          release_name: ${{ env.TEST_TAG }}
+          draft: false
+          prerelease: false
+
+  publish:
+    name: publish ${{ matrix.name }}
+    needs:
+      - release
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            suffix: windows-x86_64
+            archive: zip
+          - target: x86_64-unknown-linux-gnu
+            suffix: linux-x86_64
+            archive: tar.xz
+          - target: x86_64-apple-darwin
+            suffix: darwin-x86_64
+            archive: tar.gz
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone test repository
+        uses: actions/checkout@v3
+      - uses: xhaiker/rust-release.action@main
+        name: build ${{ matrix.name }}
+        with:
+          release: ${{ github.ref_name }}
+          rust_target: ${{ matrix.target }}
+          archive_suffix: ${{ matrix.suffix }}
+          archive_types: ${{ matrix.archive }}
+          extra_files: "README.md LICENSE"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  clean:
+    name: clean release
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Force Delete Release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true
+          tag_name: ${{ env.TEST_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
