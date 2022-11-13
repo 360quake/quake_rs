@@ -253,7 +253,7 @@ dependencies = [
  "atty",
  "humantime",
  "log",
- "regex 1.6.0",
+ "regex 1.7.0",
  "termcolor",
 ]
 
@@ -860,7 +860,7 @@ dependencies = [
  "env_logger",
  "ipaddress",
  "log",
- "regex 1.6.0",
+ "regex 1.7.0",
  "reqwest",
  "serde",
  "serde_json",
@@ -947,9 +947,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.6.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c4eb3267174b8c6c2f654116623910a0fef09c4753f8dd83db29c48a0df988b"
+checksum = "e076559ef8e241f2ae3479e36f97bd5741c0330689e217ad51ce2c76808b868a"
 dependencies = [
  "aho-corasick 0.7.19",
  "memchr",
