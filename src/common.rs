@@ -374,6 +374,14 @@ impl ArgParse {
                 let response =
                     Quake::query(query, "", start, size, "", "", cdn, mg, zxsj, wxqq, sjqc);
 
+                let count = match domain_match.get_many::<String>("count") {
+                    Some(count) => count.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
+                    _ => 0
+                };
+                let mut onlycount= true;
+                if count > 0 {
+                    onlycount = false;
+                }
                 let output = match domain_match.get_many::<String>("output") {
                     Some(output) => output.map(|s| s.as_str())
                         .collect::<Vec<_>>()
@@ -382,7 +390,7 @@ impl ArgParse {
                     None => {
                         Quake::show_domain(
                             response,
-                            domain_match.get_flag("count"),
+                            onlycount,
                             true,
                             data_type,
                         );
