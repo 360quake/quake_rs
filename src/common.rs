@@ -6,7 +6,6 @@ use clap::{Arg, Command};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-
 /*
   TODO: Comment
 */
@@ -76,7 +75,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = Command::new("Quake Command-Line Application")
-            .version("3.0.2")
+            .version("3.0.3")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand_required(true)
@@ -332,68 +331,101 @@ impl ArgParse {
                     }
                 };
                 let start = match domain_match.get_many::<String>("start") {
-                    Some(start) => start.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(start) => start
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let size = match domain_match.get_many::<String>("size") {
-                    Some(size) => size.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 10
+                    Some(size) => size
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 10,
                 };
                 if size > 100 {
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
                 let query = &format!("domain:*.{}", domain);
-                let data_type_str = match domain_match.get_many::<String>("type"){
-                    Some(data_type_str) => data_type_str.map(|s| s.as_str())
+                let data_type_str = match domain_match.get_many::<String>("type") {
+                    Some(data_type_str) => data_type_str
+                        .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    _ => "ip,port,domain".to_string()
+                    _ => "ip,port,domain".to_string(),
                 };
                 let data_type: Vec<&str> = data_type_str.split(',').collect();
 
                 let cdn = match domain_match.get_many::<String>("cdn") {
-                    Some(cdn) => cdn.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(cdn) => cdn
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let mg = match domain_match.get_many::<String>("honey_jar") {
-                    Some(mg) => mg.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(mg) => mg
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let zxsj = match domain_match.get_many::<String>("latest_data") {
-                    Some(zxsj) => zxsj.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(zxsj) => zxsj
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let wxqq = match domain_match.get_many::<String>("latest_data") {
-                    Some(wxqq) => wxqq.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(wxqq) => wxqq
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let sjqc = match domain_match.get_many::<String>("latest_data") {
-                    Some(sjqc) => sjqc.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(sjqc) => sjqc
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let response =
                     Quake::query(query, "", start, size, "", "", cdn, mg, zxsj, wxqq, sjqc);
 
                 let count = match domain_match.get_many::<String>("count") {
-                    Some(count) => count.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(count) => count
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
-                let mut onlycount= true;
+                let mut onlycount = true;
                 if count > 0 {
                     onlycount = false;
                 }
                 let output = match domain_match.get_many::<String>("output") {
-                    Some(output) => output.map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                        ,
+                    Some(output) => output.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                     None => {
-                        Quake::show_domain(
-                            response,
-                            onlycount,
-                            true,
-                            data_type,
-                        );
+                        Quake::show_domain(response, onlycount, true, data_type);
                         std::process::exit(0);
                     }
                 };
@@ -413,19 +445,30 @@ impl ArgParse {
             }
             Some(("host", host_match)) => {
                 let query_host_file = match host_match.get_many::<String>("query_host_file") {
-                    Some(query_host_file) => query_host_file.map(|s| s.as_str())
+                    Some(query_host_file) => query_host_file
+                        .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(", "),
                     None => "".to_string(),
                 };
                 let query_host_file = &query_host_file;
                 let start = match host_match.get_many::<String>("start") {
-                    Some(start) => start.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(start) => start
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let size = match host_match.get_many::<String>("size") {
-                    Some(size) => size.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 10
+                    Some(size) => size
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 10,
                 };
                 if size > 100 {
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
@@ -443,9 +486,7 @@ impl ArgParse {
                     let query = &format!("ip:{}", ip);
                     let response = Quake::query_host(query, start, size);
                     let output = match host_match.get_many::<String>("output") {
-                        Some(name) => name.map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .join(", "),
+                        Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show_host(response, true);
                             std::process::exit(0);
@@ -473,9 +514,7 @@ impl ArgParse {
                     }
                     let response = Quake::query_host_by_scroll(query, size);
                     let output = match host_match.get_many::<String>("output") {
-                        Some(name) => name.map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .join(", "),
+                        Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show_host_by_scroll(response, true);
                             std::process::exit(0);
@@ -498,14 +537,13 @@ impl ArgParse {
             }
             Some(("search", search_match)) => {
                 let upload = match search_match.get_many::<String>("upload") {
-                    Some(file_name) => file_name.map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", "),
+                    Some(file_name) => file_name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                     None => "".to_string(),
                 };
                 let upload = &upload;
                 let query_file = match search_match.get_many::<String>("query_file") {
-                    Some(query_file) => query_file.map(|s| s.as_str())
+                    Some(query_file) => query_file
+                        .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(", "),
                     None => "".to_string(),
@@ -528,56 +566,95 @@ impl ArgParse {
                 };
                 let query = &query;
                 let start = match search_match.get_many::<String>("start") {
-                    Some(start) => start.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(start) => start
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let size = match search_match.get_many::<String>("size") {
-                    Some(size) => size.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 10
+                    Some(size) => size
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 10,
                 };
                 let cdn = match search_match.get_many::<String>("cdn") {
-                    Some(cdn) => cdn.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(cdn) => cdn
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let mg = match search_match.get_many::<String>("honey_jar") {
-                    Some(mg) => mg.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(mg) => mg
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let zxsj = match search_match.get_many::<String>("latest_data") {
-                    Some(zxsj) => zxsj.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(zxsj) => zxsj
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let wxqq = match search_match.get_many::<String>("filter_request") {
-                    Some(wxqq) => wxqq.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(wxqq) => wxqq
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let sjqc = match search_match.get_many::<String>("deduplication") {
-                    Some(sjqc) => sjqc.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(sjqc) => sjqc
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
-                let time_start = match search_match.get_many::<String>("time_start"){
-                    Some(time_start) => time_start.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
-                    None => "".to_string()
+                let time_start = match search_match.get_many::<String>("time_start") {
+                    Some(time_start) => time_start
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    None => "".to_string(),
                 };
                 let time_start = &time_start;
-                let time_end = match search_match.get_many::<String>("time_end"){
+                let time_end = match search_match.get_many::<String>("time_end") {
                     Some(time_end) => time_end.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
-                    None => "".to_string()
+                    None => "".to_string(),
                 };
                 let time_end = &time_end;
                 if size > 100 {
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
-                let data_type_str = match search_match.get_many::<String>("type"){
-                    Some(data_type_str) => data_type_str.map(|s| s.as_str())
+                let data_type_str = match search_match.get_many::<String>("type") {
+                    Some(data_type_str) => data_type_str
+                        .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    _ => "ip,port".to_string()
+                    _ => "ip,port".to_string(),
                 };
                 let data_type: Vec<&str> = data_type_str.split(',').collect();
-                let filter = match search_match.get_many::<String>("filter"){
+                let filter = match search_match.get_many::<String>("filter") {
                     Some(filter) => filter.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
-                    None => "".to_string()
+                    None => "".to_string(),
                 };
                 let filter = &filter;
                 if query_file == "" {
@@ -608,7 +685,9 @@ impl ArgParse {
                     if query != "" {
                         Output::info(&format!("Search with {}", query));
                     }
-                    let response = Quake::query_for_scroll(query, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc);
+                    let response = Quake::query_for_scroll(
+                        query, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
+                    );
                     // Quake::show_scroll(response,true,filter, data_type);
                     let output = match search_match.get_many::<String>("output") {
                         Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
@@ -617,7 +696,7 @@ impl ArgParse {
                             std::process::exit(0);
                         }
                     };
-                    let output= &output;
+                    let output = &output;
                     // save to file.
                     match Quake::save_scroll_data(output, response, filter, data_type) {
                         Ok(count) => {
