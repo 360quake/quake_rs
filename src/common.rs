@@ -76,7 +76,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = Command::new("Quake Command-Line Application")
-            .version("3.0.2")
+            .version("3.0.3")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand_required(true)
@@ -264,6 +264,7 @@ impl ArgParse {
                         Arg::new("count")
                             .short('c')
                             .long("count")
+                            .value_name("NUMBER")
                             .help("Count of results")
                     )
                     .arg(
@@ -363,11 +364,11 @@ impl ArgParse {
                     Some(zxsj) => zxsj.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
                     _ => 0
                 };
-                let wxqq = match domain_match.get_many::<String>("latest_data") {
+                let wxqq = match domain_match.get_many::<String>("filter_request") {
                     Some(wxqq) => wxqq.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
                     _ => 0
                 };
-                let sjqc = match domain_match.get_many::<String>("latest_data") {
+                let sjqc = match domain_match.get_many::<String>("deduplication") {
                     Some(sjqc) => sjqc.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
                     _ => 0
                 };
@@ -376,7 +377,7 @@ impl ArgParse {
 
                 let count = match domain_match.get_many::<String>("count") {
                     Some(count) => count.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                     _ => 0
                 };
                 let mut onlycount= true;
                 if count > 0 {
