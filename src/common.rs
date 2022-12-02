@@ -263,6 +263,7 @@ impl ArgParse {
                         Arg::new("count")
                             .short('c')
                             .long("count")
+                            .value_name("NUMBER")
                             .help("Count of results")
                     )
                     .arg(
@@ -388,35 +389,20 @@ impl ArgParse {
                         .unwrap(),
                     _ => 0,
                 };
-                let wxqq = match domain_match.get_many::<String>("latest_data") {
-                    Some(wxqq) => wxqq
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                        .parse::<i32>()
-                        .unwrap(),
-                    _ => 0,
+                let wxqq = match domain_match.get_many::<String>("filter_request") {
+                    Some(wxqq) => wxqq.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
+                    _ => 0
                 };
-                let sjqc = match domain_match.get_many::<String>("latest_data") {
-                    Some(sjqc) => sjqc
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                        .parse::<i32>()
-                        .unwrap(),
-                    _ => 0,
+                let sjqc = match domain_match.get_many::<String>("deduplication") {
+                    Some(sjqc) => sjqc.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
+                    _ => 0
                 };
                 let response =
                     Quake::query(query, "", start, size, "", "", cdn, mg, zxsj, wxqq, sjqc);
 
                 let count = match domain_match.get_many::<String>("count") {
-                    Some(count) => count
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                        .parse::<i32>()
-                        .unwrap(),
-                    _ => 0,
+                Some(count) => count.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
+                     _ => 0
                 };
                 let mut onlycount = true;
                 if count > 0 {
