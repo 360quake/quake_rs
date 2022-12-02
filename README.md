@@ -57,7 +57,6 @@
 * 2020-12-25 v1.0.2 : 
     * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
 
-
 ## 问题反馈
 
 请添加微信：quake_360 邀您加入技术交流群 :)
@@ -329,6 +328,7 @@ ARGS:
 -u --upload 上传一个 IP 列表(不超过 1000 条)，进行批量查询。
 
 ##### Example：
+
 ```
 ╰─>$ ./quake search -q query.txt -o result.txt
 [+] Search with ip:"122.xxx.xxx.6" OR domain:"xxxxx.com"
