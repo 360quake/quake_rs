@@ -585,6 +585,13 @@ pub mod quake {
                     .replace("\t", "")
                     .replace("\n", "")
                     .replace("\r", "");
+                let name= data_value["service"]["name"]
+                    .as_str()
+                    .unwrap_or("")
+                    .replace("\"", "")
+                    .replace("\t", "")
+                    .replace("\n", "")
+                    .replace("\r", "");
                 let ip = data_value["ip"].as_str().unwrap().replace("\"", "");
                 let port = &data_value["port"];
                 let country = data_value["location"]["country_cn"].as_str().unwrap_or("");
@@ -626,6 +633,9 @@ pub mod quake {
                 for data in data_type.iter_mut() {
                     if data == &"title" {
                         f.push_str(&format!("{}\t", title));
+                    }
+                    if data == &"name" {
+                        f.push_str(&format!("{}\t", name));
                     }
                     if data == &"ip" {
                         f.push_str(&format!("{}\t", ip));
