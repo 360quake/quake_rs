@@ -198,7 +198,7 @@ impl ArgParse {
                             .short('t')
                             .long("type")
                             .value_name("TYPE")
-                            .help("Fields displayed:ip,port,title,name,country,province,city,owner,time,ssldomain,domain. (Default ip,port)")
+                            .help("Fields displayed:ip,port,title,product_name_cn,version,protocol,country,province,city,owner,time,ssldomain,domain. (Default ip,port)")
                     )
                     .arg(
                         Arg::new("filter")
