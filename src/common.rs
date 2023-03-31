@@ -75,7 +75,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = Command::new("Quake Command-Line Application")
-            .version("3.0.3")
+            .version("3.1.0")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand_required(true)
@@ -390,19 +390,34 @@ impl ArgParse {
                     _ => 0,
                 };
                 let wxqq = match domain_match.get_many::<String>("filter_request") {
-                    Some(wxqq) => wxqq.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(wxqq) => wxqq
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let sjqc = match domain_match.get_many::<String>("deduplication") {
-                    Some(sjqc) => sjqc.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                    _ => 0
+                    Some(sjqc) => sjqc
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let response =
                     Quake::query(query, "", start, size, "", "", cdn, mg, zxsj, wxqq, sjqc);
 
                 let count = match domain_match.get_many::<String>("count") {
-                Some(count) => count.map(|s| s.as_str()).collect::<Vec<_>>().join(", ").parse::<i32>().unwrap(),
-                     _ => 0
+                    Some(count) => count
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
                 };
                 let mut onlycount = true;
                 if count > 0 {
