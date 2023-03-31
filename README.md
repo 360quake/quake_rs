@@ -15,7 +15,7 @@
 
 ## 更新日志
 * 2023-03-31 v3.0.3:
-  * 增加-t name参数，显示service信息
+  * 增加-t product_name_cn,version,protocol参数
 * 2022-12-02 v3.0.3:
   * 修复domain查询是-c不接参数值报错的bug
 * 2022-10-17 v3.0.2:

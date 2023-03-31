@@ -571,6 +571,20 @@ pub mod quake {
             let re = Regex::new(filter).unwrap();
             for i in 0..count {
                 let data_value = value["data"][i].as_object().unwrap();
+                let product_name_cn = data_value["components"][0]["product_name_cn"]
+                    .as_str()
+                    .unwrap_or("")
+                    .replace("\"", "")
+                    .replace("\t", "")
+                    .replace("\n", "")
+                    .replace("\r", "");
+                let version = data_value["components"][0]["version"]
+                    .as_str()
+                    .unwrap_or("")
+                    .replace("\"", "")
+                    .replace("\t", "")
+                    .replace("\n", "")
+                    .replace("\r", "");
                 let title = data_value["service"]["http"]["title"]
                     .as_str()
                     .unwrap_or("")
@@ -634,7 +648,13 @@ pub mod quake {
                     if data == &"title" {
                         f.push_str(&format!("{}\t", title));
                     }
-                    if data == &"name" {
+                    if data == &"product_name_cn" {
+                        f.push_str(&format!("{}\t", product_name_cn));
+                    }
+                    if data == &"version" {
+                        f.push_str(&format!("{}\t", version));
+                    }
+                    if data == &"protocol" {
                         f.push_str(&format!("{}\t", name));
                     }
                     if data == &"ip" {
