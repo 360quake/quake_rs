@@ -1,4 +1,4 @@
-name: rust_build_create
+name: rust_build
 on:
   push:
     tags:
@@ -12,14 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
       - name: Create Release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
+          title: ${{ github.ref }}
+          draft: false
 
   publish:
     name: publish ${{ matrix.name }}
@@ -32,20 +30,23 @@ jobs:
           - target: x86_64-pc-windows-gnu
             suffix: windows-x86_64
             archive: zip
+            name: x86_64-pc-windows-gnu
           - target: x86_64-unknown-linux-gnu
             suffix: linux-x86_64
             archive: tar.xz
+            name: x86_64-unknown-linux-gnu
           - target: x86_64-apple-darwin
             suffix: darwin-x86_64
             archive: tar.gz
+            name: x86_64-apple-darwin
     runs-on: ubuntu-latest
     steps:
       - name: Clone test repository
         uses: actions/checkout@v3
-      - uses: xhaiker/rust-release.action@main
+      - uses: rootphantomer/rust-release.action@main
         name: build ${{ matrix.name }}
         with:
-          release: ${{ github.ref_name }}
+          release: ${{ github.ref }}
           rust_target: ${{ matrix.target }}
           archive_suffix: ${{ matrix.suffix }}
           archive_types: ${{ matrix.archive }}
