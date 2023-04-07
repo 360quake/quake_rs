@@ -29,8 +29,8 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - uses: rui314/setup-mold@v1
 
-      - name: Remove .cargo/config.toml to use 'mold' forcibly
-        run: rm -f .cargo/config.toml
+      # - name: Remove .cargo/config.toml to use 'mold' forcibly
+      #   run: rm -f .cargo/config.toml
 
       # Install our target.
       - run: rustup target add ${{ matrix.target }}
