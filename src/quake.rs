@@ -277,6 +277,7 @@ pub mod quake {
                 start,
                 size,
                 ignore_cache: false,
+                latest: false,
                 start_time: "".to_string(),
                 end_time: "".to_string(),
                 ip_list: vec![],
@@ -292,6 +293,7 @@ pub mod quake {
             }
             if zxsj == 1 {
                 s.ignore_cache = true;
+                s.latest = true;
             }
             if wxqq == 1 {
                 s.shortcuts
@@ -444,6 +446,7 @@ pub mod quake {
                 query: "".to_string(),
                 size,
                 ignore_cache: false,
+                latest: false,
                 pagination_id: "".to_string(),
                 start_time: "".to_string(),
                 end_time: "".to_string(),
@@ -460,6 +463,7 @@ pub mod quake {
             }
             if zxsj == 1 {
                 s.ignore_cache = true;
+                s.latest = true;
             }
             if wxqq == 1 {
                 s.shortcuts
@@ -1126,6 +1130,7 @@ pub mod quake {
             let mut data: Map<String, Value> = Map::new();
             data.insert("size".to_string(), Value::Number(Number::from(s.size)));
             data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
+            data.insert("latest".to_string(), Value::Bool(s.latest));
             data.insert("start_time".to_string(), Value::String(s.start_time));
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
@@ -1150,6 +1155,7 @@ pub mod quake {
             data.insert("start".to_string(), Value::Number(Number::from(s.start)));
             data.insert("size".to_string(), Value::Number(Number::from(s.size)));
             data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
+            data.insert("latest".to_string(), Value::Bool(s.latest));
             data.insert("start_time".to_string(), Value::String(s.start_time));
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
