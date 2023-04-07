@@ -15,6 +15,7 @@ pub struct Service {
     pub start: i32,
     pub size: i32,
     pub ignore_cache: bool,
+    pub latest: bool,
     pub start_time: String,
     pub end_time: String,
     pub ip_list: Vec<Value>,
@@ -29,6 +30,7 @@ pub struct Scroll {
     pub query: String,
     pub size: i32,
     pub ignore_cache: bool,
+    pub latest: bool,
     pub pagination_id: String,
     pub start_time: String,
     pub end_time: String,
@@ -75,7 +77,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let matches = Command::new("Quake Command-Line Application")
-            .version("3.1.0")
+            .version("3.1.1")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand_required(true)
