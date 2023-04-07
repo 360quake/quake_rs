@@ -39,6 +39,7 @@ impl ApiKey {
             start: 1,
             size: 1,
             ignore_cache: false,
+            latest: false,
             start_time: one_years_ago,
             end_time: local,
             shortcuts: Vec::new(),
