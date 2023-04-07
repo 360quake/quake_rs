@@ -1,6 +1,6 @@
 [package]
 name = "quake"
-version = "3.1.0"
+version = "3.1.1"
 authors = ["360 Quake Team <quake@360.cn>"]
 edition = "2018"
 
