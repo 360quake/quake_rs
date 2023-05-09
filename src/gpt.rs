@@ -55,6 +55,9 @@ impl Gpt {
         port:80：搜索相关端口资产
         ports:80,8080,9999:搜索多端口资产
         port:>或<port:>=或<=：搜索满足某个端口范围的主机
+        port:<80：查询开放端口小于80的主机
+        port:[80 TO 1024]：查询开放的端口介入80和1024之间的主机
+        port:>=80：查询开放端口包含且大于80端口的主机
         hostname:google.com：搜索相关IP"主机名"的资产
         service:"ssh"：搜索对应服务协议的资产，常见服务协议包括：http、ftp、ssh、telnet等等
         os:"RouterOS"：搜索相关操作系统，常见系统包括Linux、Windows、RouterOS、IOS、JUNOS等等
