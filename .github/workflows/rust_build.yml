@@ -1,54 +1,70 @@
-name: rust_build_create
+name: rust_build
 on:
   push:
     tags:
       - "v*"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-11
+            target: x86_64-apple-darwin
+          - os: macos-11
+            target: aarch64-apple-darwin
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: rui314/setup-mold@v1
+
+      # - name: Remove .cargo/config.toml to use 'mold' forcibly
+      #   run: rm -f .cargo/config.toml
+
+      # Install our target.
+      - run: rustup target add ${{ matrix.target }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --target ${{ matrix.target }} --release --bin quake
+      - uses: actions/upload-artifact@v3
+        with:
+          name: quake-${{ matrix.os }}-${{ matrix.target }}
+          path: |
+            ./target/${{ matrix.target }}/release/quake*
+
   release:
+    needs: build
     name: Create Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
-      - name: Create Release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-  publish:
-    name: publish ${{ matrix.name }}
-    needs:
-      - release
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - target: x86_64-pc-windows-gnu
-            suffix: windows-x86_64
-            archive: zip
-          - target: x86_64-unknown-linux-gnu
-            suffix: linux-x86_64
-            archive: tar.xz
-          - target: x86_64-apple-darwin
-            suffix: darwin-x86_64
-            archive: tar.gz
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone test repository
         uses: actions/checkout@v3
-      - uses: xhaiker/rust-release.action@main
-        name: build ${{ matrix.name }}
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
         with:
-          release: ${{ github.ref_name }}
-          rust_target: ${{ matrix.target }}
-          archive_suffix: ${{ matrix.suffix }}
-          archive_types: ${{ matrix.archive }}
-          extra_files: "README.md LICENSE"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: ./artifacts
+
+      - name: Create Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: ${{ github.ref }}
+          draft: false
+          files: ./artifacts/*

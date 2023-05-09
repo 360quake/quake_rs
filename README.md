@@ -15,6 +15,7 @@
 
 ## 更新日志
 
+
 - 2023-05-08 v3.1.2:
   - 新增 gpt 自动转换 quake 语法功能
 - 2023-04-07 v3.1.1:
@@ -76,18 +77,15 @@ Author: soap  <imelloit@gmail.com>
 Dose awesome things.
 
 USAGE:
-    quake.exe <SUBCOMMAND>
+    quake [SUBCOMMAND]
 
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
 SUBCOMMANDS:
     domain      View all available information for a domain.
-    gpt         Artificial intelligence engine, directly say what you want to check without
-                    grammar
-    gptinit     Initialize the gtpapi
-    help        Print this message or the help of the given subcommand(s)
+    help        Prints this message or the help of the given subcommand(s)
     honeypot    Check whether the IP is a honeypot or not.
     host        View all available information for an IP address
     info        Shows general information about your account
@@ -102,6 +100,7 @@ _ApiKey 请到 Quake 个人中心查看_
 ```bash
 quake init apikey
 ```
+
 
 如果需要使用 gpt 参数需要先初始化 chatgpt api
 chatgpt 的 api 请到该网站获取：https://platform.openai.com/account/api-keys
@@ -492,6 +491,7 @@ ARGS:
 [+] Search with 93.89.146.23
 [!] Looks like a Kojoney SSH  honeypot system!
 ```
+
 
 #### 6.gpt 功能
 

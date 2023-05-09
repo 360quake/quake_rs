@@ -18,15 +18,6 @@ impl ApiKey {
             Output::error("Error: Invalid API key");
         }
     }
-    // 初始化gptAPI
-    pub fn gptinit(gpt_key: String) {
-        // write api key
-        if Self::set_gptapi(gpt_key) {
-            Output::success("Successfully initialized");
-        } else {
-            Output::error("Error: Invalid API key");
-        }
-    }
 
     // 获取API路径
     fn get_path() -> String {
@@ -58,10 +49,6 @@ impl ApiKey {
             Err(_) => false,
         };
         res
-    }
-     // 检测gptAPI KEY 是否可用
-     fn check_gptapi(apikey: String) -> bool {
-        true
     }
 
     // 设置API KEY
@@ -121,62 +108,4 @@ impl ApiKey {
         res = fs::read_to_string(path)?;
         Ok(res)
     }
-
-// 设置gpt KEY
-pub fn set_gptapi(apikey: String) -> bool {
-    let path = Self::get_path();
-    let config_path = path.to_string().clone() + "/.config/";
-    let quake_path = path.to_string().clone() + "/.config/quake/";
-    let api_path = path.to_string().clone() + "/.config/quake/gptapi_key";
-    if !Path::exists(Path::new(config_path.as_str())) {
-        match create_dir(Path::new(config_path.as_str())) {
-            Err(e) => {
-                Output::error(&format!(
-                    "Failed to create path: .config/. {}",
-                    e.to_string()
-                ));
-                std::process::exit(1);
-            }
-            _ => {}
-        }
-    }
-    if !Path::exists(Path::new(quake_path.as_str())) {
-        match create_dir(Path::new(quake_path.as_str())) {
-            Err(e) => {
-                Output::error(&format!(
-                    "Failed to create path:.config/quake/. {}",
-                    e.to_string()
-                ));
-                std::process::exit(1);
-            }
-            _ => {}
-        }
-    }
-    if Self::check_gptapi(apikey.clone()) {
-        let mut file: File = match File::create(Path::new(api_path.as_str())) {
-            Ok(f) => f,
-            Err(e) => {
-                Output::error(&format!("File creation failure: {}", e.to_string()));
-                std::process::exit(1);
-            }
-        };
-        return match file.write_all(apikey.as_bytes()) {
-            Ok(_) => true,
-            Err(e) => {
-                Output::error(&format!("File write failure: {}", e.to_string()));
-                std::process::exit(1);
-            }
-        };
-    }
-    false
-}
-
-// 获取API KEY
-pub fn get_gptapi() -> Result<String, io::Error> {
-    let res;
-    let mut path = Self::get_path();
-    path.push_str("/.config/quake/gptapi_key");
-    res = fs::read_to_string(path)?;
-    Ok(res)
-}
 }
