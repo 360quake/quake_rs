@@ -15,8 +15,10 @@
 
 ## 更新日志
 
+- 2023-05-08 v3.1.2:
+  - 新增 gpt 自动转换 quake 语法功能
 - 2023-04-07 v3.1.1:
-  - 修复-l参数无法查询最新数据的bug
+  - 修复-l 参数无法查询最新数据的 bug
 - 2023-03-31 v3.1.0:
   - 增加-t product_name_cn,version,protocol 参数
 - 2022-12-02 v3.0.3:
@@ -74,15 +76,18 @@ Author: soap  <imelloit@gmail.com>
 Dose awesome things.
 
 USAGE:
-    quake [SUBCOMMAND]
+    quake.exe <SUBCOMMAND>
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
     domain      View all available information for a domain.
-    help        Prints this message or the help of the given subcommand(s)
+    gpt         Artificial intelligence engine, directly say what you want to check without
+                    grammar
+    gptinit     Initialize the gtpapi
+    help        Print this message or the help of the given subcommand(s)
     honeypot    Check whether the IP is a honeypot or not.
     host        View all available information for an IP address
     info        Shows general information about your account
@@ -96,6 +101,13 @@ _ApiKey 请到 Quake 个人中心查看_
 
 ```bash
 quake init apikey
+```
+
+如果需要使用 gpt 参数需要先初始化 chatgpt api
+chatgpt 的 api 请到该网站获取：https://platform.openai.com/account/api-keys
+
+```bash
+quake gptinit apikey
 ```
 
 #### 2. 域名查询
@@ -479,4 +491,88 @@ ARGS:
 ╰─>$ quake honeypot 93.89.146.23
 [+] Search with 93.89.146.23
 [!] Looks like a Kojoney SSH  honeypot system!
+```
+
+#### 6.gpt 功能
+
+用之前请初始化 chatgpt api
+可以自动对用户输入文字转换成 quake 语法进行查询(训练模型测试阶段，不一定 100%得到想要结果，欢迎随时提供反馈。)
+
+```bash
+quake gpt 搜索返回包里里面有admin
+[+] Successfully converted the quake language method:"\"response: admin\""
+[+] Search with response: admin
+[+] Data time again 2022-05-08 17:44:44 to 2023-05-08 17:44:44.
+[+] Successful.
+[+] count: 10   total: 227993117
+111.203.246.108 8080
+54.66.65.139    443
+75.119.198.108  443
+176.119.46.218  8443
+42.119.8.33     443
+121.4.104.119   443
+104.236.75.242  443
+77.240.51.12    443
+185.232.64.169  80
+3.8.229.153     443
+```
+
+```bash
+quake gpt 来一打中国江西apahce服务器数据
+[+] Successfully converted the quake language method:"app:\"Apache\" and country_cn:\"中国\" and province_cn:\"江西\" --size 12"
+[+] Search with app:Apache and country_cn:中国 and province_cn:江西
+[+] Data time again 2022-05-08 18:03:26 to 2023-05-08 18:03:26.
+[+] Successful.
+[+] count: 12   total: 353958
+59.63.205.75    4430
+218.87.21.99    80
+220.176.172.10  8888
+202.109.189.6   443
+218.65.105.57   80
+117.44.244.40   443
+59.52.176.105   8443
+218.65.83.118   80
+218.65.83.117   80
+218.64.216.156  443
+223.83.101.145  8008
+182.106.129.236 18080
+```
+
+```bash
+quake.exe gpt 来20个不要来自台湾的apahce服务器数据从2022年1月到2023年1月
+[+] Successfully converted the quake language method:"country_cn: \"中国\" and not province_cn: \"台湾省\" and app:\"Apache\" and --time_start 2022-01 --time_end 2023-01 --size 20"
+[+] Search with country_cn: 中国 and not province_cn: 台湾省 and app:Apache
+[+] Data time again 2022-01 to 2023-01.
+[+] Successful.
+[+] count: 20   total: 42349791
+222.128.9.96    5000
+111.50.25.25    49502
+210.177.196.61  5000
+124.129.43.7    8443
+47.104.37.105   8480
+39.105.219.31   8480
+111.42.197.143  5000
+123.56.25.69    30010
+175.178.251.43  443
+114.84.245.185  8443
+42.98.146.196   8480
+218.65.105.60   8480
+39.104.166.253  8480
+47.104.38.119   5986
+47.104.38.144   5986
+182.92.74.134   8480
+219.132.77.211  5000
+60.176.203.189  5000
+183.192.203.34  10017
+118.190.217.243 30010
+```
+
+```bash
+quake.exe gpt 来20个河南的linux服务器数据从2021年到2022年导出到当前目录下a.txt
+[+] Successfully converted the quake language method:"province_cn:\"河南省\" and os:\"Linux\" and --time_start 2021-01 --time_end 2022-12 --size 20 --output ./a.txt"
+[+] Search with province_cn:河南省 and os:Linux
+[+] Data time again 2021-01 to 2022-12.
+[+] Successful.
+[+] count: 20   total: 877397
+[+] Successfully saved 20 pieces of data to ./a.txt
 ```
