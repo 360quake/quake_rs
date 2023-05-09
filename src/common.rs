@@ -1,11 +1,13 @@
 // use std::process::Command;
-use crate::api::ApiKey;
+use crate::{api::ApiKey, gpt};
 use crate::quake::quake::Quake;
 use ansi_term::Colour::{Blue, Green, Red, Yellow};
-use clap::{Arg, Command};
+use clap::{App,Arg, Command, ArgMatches};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-
+use std::error::Error;
+use crate::gpt::Gpt;
+use regex::Regex;
 /*
   TODO: Comment
 */
@@ -75,8 +77,11 @@ pub struct AggService {
 pub struct ArgParse;
 
 impl ArgParse {
+
+
+  
     pub fn parse() {
-        let matches = Command::new("Quake Command-Line Application")
+        let mut matches = Command::new("Quake Command-Line Application")
             .version("3.1.1")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
@@ -89,6 +94,13 @@ impl ArgParse {
                         Arg::new("Api_Key")
                             .index(1)
                             .help("Initialize the Quake command-line")
+                    )
+            ).subcommand(
+                Command::new("gptinit")
+                    .about("Initialize the gtpapi")
+                    .arg(
+                        Arg::new("gpt_Key")
+                            .help("Initialize the gptapi")
                     )
             )
             .subcommand(
@@ -314,6 +326,20 @@ impl ArgParse {
                             .value_name("ip")
                             .help("The ip address to be queried.")
                     )
+            ) .subcommand(
+                Command::new("gpt")
+                    .about("Artificial intelligence engine, directly say what you want to check without grammar")
+                    .arg(
+                        Arg::new("gpt_match")
+                            .index(1)
+                            .value_name("GPT_MATVH")
+                            .help("what to say")
+                    ).arg(
+                        Arg::new("size")
+                            .long("size")
+                            .value_name("NUMBER")
+                            .help("The size of the number of responses, up to a maximum of 100 (Default 10).")
+                    )
             )
             .get_matches();
 
@@ -321,6 +347,11 @@ impl ArgParse {
             Some(("init", init_match)) => {
                 if let Some(api_key) = init_match.get_many::<String>("Api_Key") {
                     ApiKey::init(api_key.map(|s| s.as_str()).collect::<Vec<_>>().join(", "));
+                }
+            }
+            Some(("gptinit", init_match)) => {
+                if let Some(api_key) = init_match.get_many::<String>("gpt_Key") {
+                    ApiKey::gptinit(api_key.map(|s| s.as_str()).collect::<Vec<_>>().join(", "));
                 }
             }
             Some(("domain", domain_match)) => {
@@ -716,6 +747,242 @@ impl ArgParse {
             }
             Some(("info", _)) => {
                 Quake::show_info();
+            } 
+        //gpt引擎
+            Some(("gpt", gpt_match)) => {
+                let gptcs = match gpt_match.get_many::<String>("gpt_match") {
+                    Some(gptcs) => gptcs.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                    None => {
+                        Output::error(
+                            "You have to say something. \r\nPlease execute -h for help.",
+                        );
+                        std::process::exit(1);
+                    }
+                };
+                
+                let gpt_sj: Result<String, Box<dyn Error>>=match Gpt::query_gpt(&gptcs){
+                    Ok(res) => {
+                        Output::info(&format!("Successfully converted the quake language method:{}", res));
+                        Ok(res)
+                }
+                    Err(err) => {eprintln!("Error: {}", err);
+                    Err(err.into())
+                }
+                };
+                let upload = match gpt_match.get_many::<String>("upload") {
+                    Some(file_name) => file_name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                    None => "".to_string(),
+                };
+                let upload = &upload;
+                let query_file = match gpt_match.get_many::<String>("query_file") {
+                    Some(query_file) => query_file
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    None => "".to_string(),
+                };
+                let query_file = &query_file;
+                //let query_string;
+                // let query = match gpt_match.get_many::<String>("query_string") {
+                //     Some(query) => query.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                //     None => {
+                //         if upload == "" && query_file == "" {
+                //             Output::error("Error: You must enter a search syntax.\r\nPlease execute -h for help.");
+                //             std::process::exit(1);
+                //         } else if query_file != "" {
+                //             query_string = Quake::read_file_search(query_file);
+                //             query_string.to_string()
+                //         } else {
+                //             "".to_string()
+                //         }
+                //     }
+                // };
+                let mut query = gpt_sj.unwrap().trim_matches('"').replace("\\", "");
+                
+                
+                let sizere = Regex::new(r"--size\s+(\d+)").unwrap();
+                let time_startre = Regex::new(r"--time_start\s+(\d+-\d+)(?:-\d+)?").unwrap();
+                let time_endre = Regex::new(r"--time_end\s+(\d+-\d+)(?:-\d+)?").unwrap();
+                let outputre = Regex::new(r"--output\s+([^\s]+)").unwrap();
+                let andre = Regex::new(r"and\s*$").unwrap();
+                let size = match sizere.captures(query.as_str()) {
+                    Some(captures) => {
+                        let size = captures.get(1).unwrap().as_str();
+                        size.parse::<i32>().unwrap()
+                    }
+                    None => 10,
+                };
+                let time_start = match time_startre.captures(query.as_str()) {
+                    Some(captures) => {
+                        let size = captures.get(1).unwrap().as_str();
+                        size.parse::<String>().unwrap()
+                    }
+                    None =>"".to_string(),
+                };
+                let time_start = &time_start;
+                let time_end = match time_endre.captures(query.as_str()) {
+                    Some(captures) => {
+                        let size = captures.get(1).unwrap().as_str();
+                        size.parse::<String>().unwrap()
+                    }
+                    None =>"".to_string(),
+                };
+                let time_end = &time_end;
+                let start = match gpt_match.get_many::<String>("start") {
+                    Some(start) => start
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+               
+                
+                
+                let cdn = match gpt_match.get_many::<String>("cdn") {
+                    Some(cdn) => cdn
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+                let mg = match gpt_match.get_many::<String>("honey_jar") {
+                    Some(mg) => mg
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+                let zxsj = match gpt_match.get_many::<String>("latest_data") {
+                    Some(zxsj) => zxsj
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+                let wxqq = match gpt_match.get_many::<String>("filter_request") {
+                    Some(wxqq) => wxqq
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+                let sjqc = match gpt_match.get_many::<String>("deduplication") {
+                    Some(sjqc) => sjqc
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                        .parse::<i32>()
+                        .unwrap(),
+                    _ => 0,
+                };
+
+
+                let mut query = sizere.replace_all(&query, "").to_string();
+                let mut query = time_startre.replace_all(&query, "").to_string();
+                let mut query = time_endre.replace_all(&query, "").to_string();
+                let outputquery = query.as_str();
+                let mut query = outputre.replace_all(&query, "").to_string();
+                let mut query = andre.replace_all(&query, "").to_string();
+                let mut query = query.replace("\"", "").to_string();
+
+
+                //query.push('"');
+                let query=query.as_str();
+                
+
+               
+               
+                if size > 100 {
+                    Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
+                }
+
+                let data_type_str = match gpt_match.get_many::<String>("type") {
+                    Some(data_type_str) => data_type_str
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    _ => "ip,port".to_string(),
+                };
+                let data_type: Vec<&str> = data_type_str.split(',').collect();
+                let filter = match gpt_match.get_many::<String>("filter") {
+                    Some(filter) => filter.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                    None => "".to_string(),
+                };
+                let filter = &filter;
+                if query_file == "" {
+                    let response = Quake::query(
+                        query, upload, start, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
+                    );
+                    let output = match outputre.captures(outputquery) {
+                        Some(captures) => {
+                            let size = captures.get(1).unwrap().as_str();
+                            size.parse::<String>().unwrap()
+                        }
+                        None =>{
+                            Quake::show(response, true, filter, data_type);
+                            std::process::exit(0);
+                        }
+                    };
+                    // let output = match gpt_match.get_many::<String>("output") {
+                    //     Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                    //     None => {
+                    //         Quake::show(response, true, filter, data_type);
+                    //         std::process::exit(0);
+                    //     }
+                    // };
+                    let output = &output;
+                    // save to file.
+                    match Quake::save_search_data(output, response, filter, data_type) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                } else {
+                    if query != "" {
+                        Output::info(&format!("Search with {}", query));
+                    }
+                    let response = Quake::query_for_scroll(
+                        query, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc,
+                    );
+                    // Quake::show_scroll(response,true,filter, data_type);
+                    let output = match gpt_match.get_many::<String>("output") {
+                        Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
+                        None => {
+                            Quake::show_scroll(response, true, filter, data_type);
+                            std::process::exit(0);
+                        }
+                    };
+                    let output = &output;
+                    // save to file.
+                    match Quake::save_scroll_data(output, response, filter, data_type) {
+                        Ok(count) => {
+                            Output::success(&format!(
+                                "Successfully saved {} pieces of data to {}",
+                                count, output
+                            ));
+                        }
+                        Err(e) => {
+                            Output::error(&format!("Data saving failure:{}", e.to_string()));
+                        }
+                    };
+                }
+                
             }
             Some(("honeypot", honeypot_match)) => {
                 let ip = match honeypot_match.get_many::<String>("ip") {
