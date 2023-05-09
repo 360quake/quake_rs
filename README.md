@@ -14,50 +14,54 @@
    ```
 
 ## 更新日志
-* 2023-03-31 v3.0.3:
-  * 增加-t product_name_cn,version,protocol参数
-* 2022-12-02 v3.0.3:
-  * 修复domain查询是-c不接参数值报错的bug
-* 2022-10-17 v3.0.2:
-  * 修复文件读取时最后一行为空无法生成搜索语句bug
-* 2022-10-13 v3.0.1:
-  * 更新clap到4.x版本
-* 2022-10-09 v2.2.3:
-  * 完成host批量查询功能
-* 2022-09-27 v2.2.2:
-  * 修复code转i32时出现unwrap的bug
-  * 完成批量查询自动翻页功能
-* 2022-09-19 v2.2.1:
-  * 优化批量查询的功能，读取txt中查询语句，将结果发回到新的txt中
-  * 删除部分冗余代码
-* 2022-09-16 v2.2:
-  * 添加批量查询的功能
-  * 读取txt中查询语句，将结果发回到新的txt中
-* 2022-08-25 v2.1:
-    * 优化新增排除cdn、排除蜜罐、显示最新数据参数
-    * 新增workflows工作流打包成release
-* 2021-08-12 v2.0.3:
-    * 新增排除蜜罐、排除CDN、使用最新数据功能
-    * 新增过滤无效请求和数据去重功能
-* 2021-04-06 v2.0.2:
-    * 修复域名搜不到的问题。 :)
-* 2021-04-06 v2.0.1:
-    * 优化搜索结果，去除重复数据。  
-    * 添加文件上传搜索功能。
-    * 添加指定时间搜索功能。
-    * 优化代码。
-* 2021-01-22 v1.0.5:
-    * 修复TLS解构解析不一致的问题。
-    * 修复命令行工具被杀软报毒问题。
-* 2021-01-15 v1.0.4:
-    * 优化title显示，删除不可见字符。
-    * host命令新增地理位置、设备信息和更新时间字段。
-    * 修复域名查询，出现无关域名的问题。
-* 2021-01-08 v1.0.3:
-    * 修复init命令bug
-    * 新增证书域名提取。
-* 2020-12-25 v1.0.2 : 
-    * 添加info和honeypot子命令，可以查看个人信息和进行蜜罐识别。
+- 2023-05-08 v3.1.2:
+  - 新增gpt自动转换quake语法功能
+- 2023-04-07 v3.1.1:
+  - 修复-l参数无法查询最新数据的bug
+- 2023-03-31 v3.1.0:
+  - 增加-t product_name_cn,version,protocol 参数
+- 2022-12-02 v3.0.3:
+  - 修复 domain 查询是-c 不接参数值报错的 bug
+- 2022-10-17 v3.0.2:
+  - 修复文件读取时最后一行为空无法生成搜索语句 bug
+- 2022-10-13 v3.0.1:
+  - 更新 clap 到 4.x 版本
+- 2022-10-09 v2.2.3:
+  - 完成 host 批量查询功能
+- 2022-09-27 v2.2.2:
+  - 修复 code 转 i32 时出现 unwrap 的 bug
+  - 完成批量查询自动翻页功能
+- 2022-09-19 v2.2.1:
+  - 优化批量查询的功能，读取 txt 中查询语句，将结果发回到新的 txt 中
+  - 删除部分冗余代码
+- 2022-09-16 v2.2:
+  - 添加批量查询的功能
+  - 读取 txt 中查询语句，将结果发回到新的 txt 中
+- 2022-08-25 v2.1:
+  - 优化新增排除 cdn、排除蜜罐、显示最新数据参数
+  - 新增 workflows 工作流打包成 release
+- 2021-08-12 v2.0.3:
+  - 新增排除蜜罐、排除 CDN、使用最新数据功能
+  - 新增过滤无效请求和数据去重功能
+- 2021-04-06 v2.0.2:
+  - 修复域名搜不到的问题。 :)
+- 2021-04-06 v2.0.1:
+  - 优化搜索结果，去除重复数据。
+  - 添加文件上传搜索功能。
+  - 添加指定时间搜索功能。
+  - 优化代码。
+- 2021-01-22 v1.0.5:
+  - 修复 TLS 解构解析不一致的问题。
+  - 修复命令行工具被杀软报毒问题。
+- 2021-01-15 v1.0.4:
+  - 优化 title 显示，删除不可见字符。
+  - host 命令新增地理位置、设备信息和更新时间字段。
+  - 修复域名查询，出现无关域名的问题。
+- 2021-01-08 v1.0.3:
+  - 修复 init 命令 bug
+  - 新增证书域名提取。
+- 2020-12-25 v1.0.2 :
+  - 添加 info 和 honeypot 子命令，可以查看个人信息和进行蜜罐识别。
 
 ## 问题反馈
 
@@ -71,15 +75,18 @@ Author: soap  <imelloit@gmail.com>
 Dose awesome things.
 
 USAGE:
-    quake [SUBCOMMAND]
+    quake.exe <SUBCOMMAND>
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
     domain      View all available information for a domain.
-    help        Prints this message or the help of the given subcommand(s)
+    gpt         Artificial intelligence engine, directly say what you want to check without
+                    grammar
+    gptinit     Initialize the gtpapi
+    help        Print this message or the help of the given subcommand(s)
     honeypot    Check whether the IP is a honeypot or not.
     host        View all available information for an IP address
     info        Shows general information about your account
@@ -94,6 +101,13 @@ _ApiKey 请到 Quake 个人中心查看_
 ```bash
 quake init apikey
 ```
+
+如果需要使用gpt参数需要先初始化chatgpt api
+chatgpt的api请到该网站获取：https://platform.openai.com/account/api-keys
+```bash
+quake gptinit apikey
+```
+
 
 #### 2. 域名查询
 
@@ -476,4 +490,88 @@ ARGS:
 ╰─>$ quake honeypot 93.89.146.23
 [+] Search with 93.89.146.23
 [!] Looks like a Kojoney SSH  honeypot system!
+```
+
+#### 6.gpt功能
+
+用之前请初始化chatgpt api
+可以自动对用户输入文字转换成quake语法进行查询(训练模型测试阶段，不一定100%得到想要结果，欢迎随时提供反馈。)
+
+
+
+```bash
+quake gpt 搜索返回包里里面有admin
+[+] Successfully converted the quake language method:"\"response: admin\""
+[+] Search with response: admin
+[+] Data time again 2022-05-08 17:44:44 to 2023-05-08 17:44:44.
+[+] Successful.
+[+] count: 10   total: 227993117
+111.203.246.108 8080
+54.66.65.139    443
+75.119.198.108  443
+176.119.46.218  8443
+42.119.8.33     443
+121.4.104.119   443
+104.236.75.242  443
+77.240.51.12    443
+185.232.64.169  80
+3.8.229.153     443
+```
+```bash
+quake gpt 来一打中国江西apahce服务器数据
+[+] Successfully converted the quake language method:"app:\"Apache\" and country_cn:\"中国\" and province_cn:\"江西\" --size 12"
+[+] Search with app:Apache and country_cn:中国 and province_cn:江西
+[+] Data time again 2022-05-08 18:03:26 to 2023-05-08 18:03:26.
+[+] Successful.
+[+] count: 12   total: 353958
+59.63.205.75    4430
+218.87.21.99    80
+220.176.172.10  8888
+202.109.189.6   443
+218.65.105.57   80
+117.44.244.40   443
+59.52.176.105   8443
+218.65.83.118   80
+218.65.83.117   80
+218.64.216.156  443
+223.83.101.145  8008
+182.106.129.236 18080
+```
+```bash
+quake.exe gpt 来20个不要来自台湾的apahce服务器数据从2022年1月到2023年1月
+[+] Successfully converted the quake language method:"country_cn: \"中国\" and not province_cn: \"台湾省\" and app:\"Apache\" and --time_start 2022-01 --time_end 2023-01 --size 20"
+[+] Search with country_cn: 中国 and not province_cn: 台湾省 and app:Apache
+[+] Data time again 2022-01 to 2023-01.
+[+] Successful.
+[+] count: 20   total: 42349791
+222.128.9.96    5000
+111.50.25.25    49502
+210.177.196.61  5000
+124.129.43.7    8443
+47.104.37.105   8480
+39.105.219.31   8480
+111.42.197.143  5000
+123.56.25.69    30010
+175.178.251.43  443
+114.84.245.185  8443
+42.98.146.196   8480
+218.65.105.60   8480
+39.104.166.253  8480
+47.104.38.119   5986
+47.104.38.144   5986
+182.92.74.134   8480
+219.132.77.211  5000
+60.176.203.189  5000
+183.192.203.34  10017
+118.190.217.243 30010
+```
+
+```bash
+quake.exe gpt 来20个河南的linux服务器数据从2021年到2022年导出到当前目录下a.txt
+[+] Successfully converted the quake language method:"province_cn:\"河南省\" and os:\"Linux\" and --time_start 2021-01 --time_end 2022-12 --size 20 --output ./a.txt"
+[+] Search with province_cn:河南省 and os:Linux
+[+] Data time again 2021-01 to 2022-12.
+[+] Successful.
+[+] count: 20   total: 877397
+[+] Successfully saved 20 pieces of data to ./a.txt
 ```
