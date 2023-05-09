@@ -14,10 +14,11 @@
    ```
 
 ## 更新日志
+
 - 2023-05-08 v3.1.2:
-  - 新增gpt自动转换quake语法功能
+  - 新增 gpt 自动转换 quake 语法功能
 - 2023-04-07 v3.1.1:
-  - 修复-l参数无法查询最新数据的bug
+  - 修复-l 参数无法查询最新数据的 bug
 - 2023-03-31 v3.1.0:
   - 增加-t product_name_cn,version,protocol 参数
 - 2022-12-02 v3.0.3:
@@ -102,12 +103,12 @@ _ApiKey 请到 Quake 个人中心查看_
 quake init apikey
 ```
 
-如果需要使用gpt参数需要先初始化chatgpt api
-chatgpt的api请到该网站获取：https://platform.openai.com/account/api-keys
+如果需要使用 gpt 参数需要先初始化 chatgpt api
+chatgpt 的 api 请到该网站获取：https://platform.openai.com/account/api-keys
+
 ```bash
 quake gptinit apikey
 ```
-
 
 #### 2. 域名查询
 
@@ -492,12 +493,10 @@ ARGS:
 [!] Looks like a Kojoney SSH  honeypot system!
 ```
 
-#### 6.gpt功能
+#### 6.gpt 功能
 
-用之前请初始化chatgpt api
-可以自动对用户输入文字转换成quake语法进行查询(训练模型测试阶段，不一定100%得到想要结果，欢迎随时提供反馈。)
-
-
+用之前请初始化 chatgpt api
+可以自动对用户输入文字转换成 quake 语法进行查询(训练模型测试阶段，不一定 100%得到想要结果，欢迎随时提供反馈。)
 
 ```bash
 quake gpt 搜索返回包里里面有admin
@@ -517,6 +516,7 @@ quake gpt 搜索返回包里里面有admin
 185.232.64.169  80
 3.8.229.153     443
 ```
+
 ```bash
 quake gpt 来一打中国江西apahce服务器数据
 [+] Successfully converted the quake language method:"app:\"Apache\" and country_cn:\"中国\" and province_cn:\"江西\" --size 12"
@@ -537,6 +537,7 @@ quake gpt 来一打中国江西apahce服务器数据
 223.83.101.145  8008
 182.106.129.236 18080
 ```
+
 ```bash
 quake.exe gpt 来20个不要来自台湾的apahce服务器数据从2022年1月到2023年1月
 [+] Successfully converted the quake language method:"country_cn: \"中国\" and not province_cn: \"台湾省\" and app:\"Apache\" and --time_start 2022-01 --time_end 2023-01 --size 20"
