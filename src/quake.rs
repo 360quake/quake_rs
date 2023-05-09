@@ -14,7 +14,7 @@ pub mod quake {
 
     //BaseUrl is the basis for all of our api requests.
     const BASE_URL: &'static str = "https://quake.360.net";
-
+    const GPT_URL: &'static str = "https://api.openai.com/v1/chat/completions";
     pub struct Quake {
         api_key: String,
     }
@@ -358,6 +358,51 @@ pub mod quake {
             url.push_str("/api/v3/search/quake_service");
             let client = reqwest::blocking::Client::new();
             let post_data: Map<String, Value> = Self::get_service_post_data(service);
+            //print!("{:?}",post_data);
+            //print!("{:?}",self.header());
+            let resp: Response = match client
+                .post(&url)
+                .headers(self.header())
+                .json(&post_data)
+                .send()
+            {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            let res = match resp.text() {
+                Ok(resp) => resp,
+                Err(e) => {
+                    if e.is_timeout() {
+                        Output::error("Connect Timeout!!");
+                    } else {
+                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
+                    }
+                    std::process::exit(1);
+                }
+            };
+            //print!("{:?}",res);
+            let response: Value = serde_json::from_str(&res)?;
+            let code = response["code"].to_string();
+            let message = response["message"].as_str().unwrap();
+            if code != "0" {
+                Output::error(&format!("Query failed: {}", message));
+                std::process::exit(1);
+            }
+            Ok(response)
+        }
+        pub fn query_gpt(&self, service: Service) -> Result<Value, serde_json::Error> {
+            let mut url = String::new();
+            url.push_str(BASE_URL);
+            url.push_str("/api/v3/search/quake_service");
+            let client = reqwest::blocking::Client::new();
+            let post_data: Map<String, Value> = Self::get_service_post_data(service);
             let resp: Response = match client
                 .post(&url)
                 .headers(self.header())
@@ -394,7 +439,6 @@ pub mod quake {
             }
             Ok(response)
         }
-
         pub fn get_scroll_data(&self, scroll: Scroll) -> String {
             let mut url = String::new();
             url.push_str(BASE_URL);
