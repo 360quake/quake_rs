@@ -62,7 +62,6 @@ impl Gpt {
         service:"ssh"：搜索对应服务协议的资产，常见服务协议包括：http、ftp、ssh、telnet等等
         os:"RouterOS"：搜索相关操作系统，常见系统包括Linux、Windows、RouterOS、IOS、JUNOS等等
         title:"Cisco"：搜索html内容里标题中存在"Cisco"的数据
-        jarm: "29d29d15d29d29d00029d29d29d29dea0f89a2e5fb09e4d8e099befed92cfa"：搜索相关jarm内容的资产
         favicon_hash:"f3418a443e7d841097c714d69ec4bcb8"：通过 md5 方式对目标数据进行解析，根据图标搜索相关内容的资产，搜索包含“google”图标的相关资产
         html_hash:"69d7683445fed9e517e33750615f46c0"：网页html的md5值
         headers:"ThinkPHP"：http headers字符串
