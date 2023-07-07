@@ -1,13 +1,13 @@
 // use std::process::Command;
-use crate::{api::ApiKey, gpt};
+use crate::gpt::Gpt;
 use crate::quake::quake::Quake;
+use crate::{api::ApiKey, gpt};
 use ansi_term::Colour::{Blue, Green, Red, Yellow};
-use clap::{App,Arg, Command, ArgMatches};
+use clap::{App, Arg, ArgMatches, Command};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::error::Error;
-use crate::gpt::Gpt;
-use regex::Regex;
 /*
   TODO: Comment
 */
@@ -77,9 +77,6 @@ pub struct AggService {
 pub struct ArgParse;
 
 impl ArgParse {
-
-
-  
     pub fn parse() {
         let mut matches = Command::new("Quake Command-Line Application")
             .version("3.1.1")
@@ -747,27 +744,29 @@ impl ArgParse {
             }
             Some(("info", _)) => {
                 Quake::show_info();
-            } 
-        //gpt引擎
+            }
+            //gpt引擎
             Some(("gpt", gpt_match)) => {
                 let gptcs = match gpt_match.get_many::<String>("gpt_match") {
                     Some(gptcs) => gptcs.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                     None => {
-                        Output::error(
-                            "You have to say something. \r\nPlease execute -h for help.",
-                        );
+                        Output::error("You have to say something. \r\nPlease execute -h for help.");
                         std::process::exit(1);
                     }
                 };
-                
-                let gpt_sj: Result<String, Box<dyn Error>>=match Gpt::query_gpt(&gptcs){
+
+                let gpt_sj: Result<String, Box<dyn Error>> = match Gpt::query_gpt(&gptcs) {
                     Ok(res) => {
-                        Output::info(&format!("Successfully converted the quake language method:{}", res));
+                        Output::info(&format!(
+                            "Successfully converted the quake language method:{}",
+                            res
+                        ));
                         Ok(res)
-                }
-                    Err(err) => {eprintln!("Error: {}", err);
-                    Err(err.into())
-                }
+                    }
+                    Err(err) => {
+                        eprintln!("Error: {}", err);
+                        Err(err.into())
+                    }
                 };
                 let upload = match gpt_match.get_many::<String>("upload") {
                     Some(file_name) => file_name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
@@ -798,8 +797,7 @@ impl ArgParse {
                 //     }
                 // };
                 let mut query = gpt_sj.unwrap().trim_matches('"').replace("\\", "");
-                
-                
+
                 let sizere = Regex::new(r"--size\s+(\d+)").unwrap();
                 let time_startre = Regex::new(r"--time_start\s+(\d+-\d+)(?:-\d+)?").unwrap();
                 let time_endre = Regex::new(r"--time_end\s+(\d+-\d+)(?:-\d+)?").unwrap();
@@ -817,7 +815,7 @@ impl ArgParse {
                         let size = captures.get(1).unwrap().as_str();
                         size.parse::<String>().unwrap()
                     }
-                    None =>"".to_string(),
+                    None => "".to_string(),
                 };
                 let time_start = &time_start;
                 let time_end = match time_endre.captures(query.as_str()) {
@@ -825,7 +823,7 @@ impl ArgParse {
                         let size = captures.get(1).unwrap().as_str();
                         size.parse::<String>().unwrap()
                     }
-                    None =>"".to_string(),
+                    None => "".to_string(),
                 };
                 let time_end = &time_end;
                 let start = match gpt_match.get_many::<String>("start") {
@@ -837,9 +835,7 @@ impl ArgParse {
                         .unwrap(),
                     _ => 0,
                 };
-               
-                
-                
+
                 let cdn = match gpt_match.get_many::<String>("cdn") {
                     Some(cdn) => cdn
                         .map(|s| s.as_str())
@@ -886,7 +882,6 @@ impl ArgParse {
                     _ => 0,
                 };
 
-
                 let mut query = sizere.replace_all(&query, "").to_string();
                 let mut query = time_startre.replace_all(&query, "").to_string();
                 let mut query = time_endre.replace_all(&query, "").to_string();
@@ -895,13 +890,9 @@ impl ArgParse {
                 let mut query = andre.replace_all(&query, "").to_string();
                 let mut query = query.replace("\"", "").to_string();
 
-
                 //query.push('"');
-                let query=query.as_str();
-                
+                let query = query.as_str();
 
-               
-               
                 if size > 100 {
                     Output::warning("Warning: Size is set to a maximum of 100, if set too high it may cause abnormal slowdowns or timeouts.");
                 }
@@ -928,7 +919,7 @@ impl ArgParse {
                             let size = captures.get(1).unwrap().as_str();
                             size.parse::<String>().unwrap()
                         }
-                        None =>{
+                        None => {
                             Quake::show(response, true, filter, data_type);
                             std::process::exit(0);
                         }
@@ -982,7 +973,6 @@ impl ArgParse {
                         }
                     };
                 }
-                
             }
             Some(("honeypot", honeypot_match)) => {
                 let ip = match honeypot_match.get_many::<String>("ip") {
