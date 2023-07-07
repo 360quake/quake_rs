@@ -449,7 +449,7 @@ impl ArgParse {
                         .unwrap(),
                     _ => 0,
                 };
-                let mut onlycount = true;
+                let mut onlycount = false;
                 if count > 0 {
                     onlycount = false;
                 }

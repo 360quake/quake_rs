@@ -15,6 +15,8 @@
 
 ## 更新日志
 
+2023-07-07 v3.1.3:
+  - 修复 domain 查询是-c 不接参数值报错的 bug
 - 2023-05-08 v3.1.2:
   - 新增 gpt 自动转换 quake 语法功能
 - 2023-04-07 v3.1.1:
@@ -122,7 +124,6 @@ USAGE:
     quake domain [FLAGS] [OPTIONS] [DOMAIN_NAME]
 
 FLAGS:
-    -c, --count      Count of results
     -h, --help       Prints help information
     -V, --version    Prints version information
 
