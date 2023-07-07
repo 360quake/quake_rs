@@ -8,6 +8,7 @@ pub mod quake {
     use reqwest::blocking::Response;
     use reqwest::header::{HeaderMap, HeaderValue};
     use serde_json::{Map, Number, Value};
+    use std::alloc::System;
     use std::fs::OpenOptions;
     use std::io::{Read, Write};
     use std::{fs, io};
@@ -938,6 +939,7 @@ pub mod quake {
         ) -> Vec<String> {
             let mut value = value;
             let mut res: Vec<String> = Vec::new();
+            
             let count = value["meta"]["pagination"]["count"].as_i64().unwrap() as usize;
             let total = value["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
             Output::success("Successful.");
@@ -949,6 +951,7 @@ pub mod quake {
                         .as_str()
                         .unwrap_or("")
                         .replace("\"", "");
+
                     let title = data_value["service"]["http"]["title"]
                         .as_str()
                         .unwrap_or("")
@@ -961,6 +964,7 @@ pub mod quake {
                     let mut f = String::new();
                     for data in data_type.iter_mut() {
                         if data == &"domain" {
+                           
                             f.push_str(&format!("{}\t", domain));
                         }
                         if data == &"title" {
