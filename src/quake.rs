@@ -72,13 +72,10 @@ pub mod quake {
             Ok(response)
         }
 
-        pub fn query_host_by_scroll(
-            query_string:&str,
-            size: i32
-        ) -> Vec<Value> {
+        pub fn query_host_by_scroll(query_string: &str, size: i32) -> Vec<Value> {
             Output::info(&format!("Search with {}", query_string));
             let res = ApiKey::get_api().expect("Failed to read apikey:\t");
-            let response = match Quake::new(res).search_host_by_scroll(query_string,size) {
+            let response = match Quake::new(res).search_host_by_scroll(query_string, size) {
                 Ok(response) => response,
                 Err(e) => {
                     Output::error(&format!("Query failed: {}", e.to_string()));
@@ -88,10 +85,7 @@ pub mod quake {
             response
         }
 
-        pub fn show_host_by_scroll(
-            value:Vec<Value>,
-            show_data:bool,
-        ) -> Vec<String>{
+        pub fn show_host_by_scroll(value: Vec<Value>, show_data: bool) -> Vec<String> {
             let mut res: Vec<String> = Vec::new();
             let count = value.len();
             for i in 0..count {
@@ -138,10 +132,7 @@ pub mod quake {
             res
         }
 
-        pub fn save_host_by_scroll_data(
-            filename: &str,
-            content: Vec<Value>,
-        ) -> io::Result<i32> {
+        pub fn save_host_by_scroll_data(filename: &str, content: Vec<Value>) -> io::Result<i32> {
             let mut f = OpenOptions::new()
                 .create(true)
                 .append(true)
@@ -157,9 +148,10 @@ pub mod quake {
 
         pub fn search_host_by_scroll(
             &self,
-            query_string:&str,
-            size: i32) -> Result<Vec<Value>, serde_json::Error> {
-            let sh = Self::init_scroll_host(query_string,size,"");
+            query_string: &str,
+            size: i32,
+        ) -> Result<Vec<Value>, serde_json::Error> {
+            let sh = Self::init_scroll_host(query_string, size, "");
             let res = Self::get_scroll_data_by_host(self, sh);
             let response: Value = serde_json::from_str(&res)?;
             let message = response["message"].as_str().unwrap();
@@ -176,11 +168,10 @@ pub mod quake {
             all_data.extend(data_array.iter().cloned());
 
             while data_len != 0 && (data_len as i32) >= size {
-
                 let s_scroll = Self::init_scroll_host(query_string, size, pagination_id);
                 let res_scroll = Self::get_scroll_data_by_host(self, s_scroll);
                 let responses: Value = serde_json::from_str(&res_scroll)?;
-                let  data_array_for_while = responses["data"].as_array().unwrap();
+                let data_array_for_while = responses["data"].as_array().unwrap();
                 // all_data.append(&mut data_array_for_while);
                 all_data.extend(data_array_for_while.iter().cloned());
                 data_len = data_array_for_while.len();
@@ -188,17 +179,18 @@ pub mod quake {
             Ok(all_data)
         }
 
-        pub fn get_scroll_data_by_host(&self, scrollhost:ScrollHost) -> String{
+        pub fn get_scroll_data_by_host(&self, scrollhost: ScrollHost) -> String {
             let mut url = String::new();
             url.push_str(BASE_URL);
             url.push_str("/api/v3/scroll/quake_host");
             let client = reqwest::blocking::Client::new();
-            let post_data:Map<String, Value> = Self::get_scrollhost_post_data(scrollhost);
+            let post_data: Map<String, Value> = Self::get_scrollhost_post_data(scrollhost);
             let resp: Response = match client
                 .post(&url)
                 .headers(self.header())
                 .json(&post_data)
-                .send() {
+                .send()
+            {
                 Ok(resp) => resp,
                 Err(e) => {
                     if e.is_timeout() {
@@ -223,7 +215,7 @@ pub mod quake {
             res
         }
 
-        fn get_scrollhost_post_data(s:ScrollHost) -> Map<String,Value>{
+        fn get_scrollhost_post_data(s: ScrollHost) -> Map<String, Value> {
             let mut data: Map<String, Value> = Map::new();
             data.insert("size".to_string(), Value::Number(Number::from(s.size)));
             data.insert("ignore_cache".to_string(), Value::Bool(s.ignore_cache));
@@ -235,11 +227,7 @@ pub mod quake {
             data
         }
 
-        pub fn init_scroll_host(
-            query_string: &str,
-            size: i32,
-            pagination_id: &str,
-        ) -> ScrollHost {
+        pub fn init_scroll_host(query_string: &str, size: i32, pagination_id: &str) -> ScrollHost {
             let mut sh = ScrollHost {
                 query: "".to_string(),
                 size,
@@ -252,7 +240,7 @@ pub mod quake {
                 Output::info(&format!("Search failed"));
                 std::process::exit(1);
             }
-            if pagination_id != ""{
+            if pagination_id != "" {
                 sh.pagination_id = format!("{}", pagination_id);
             }
             sh
@@ -351,7 +339,6 @@ pub mod quake {
             response
         }
 
-
         pub fn search(&self, service: Service) -> Result<Value, serde_json::Error> {
             let mut url = String::new();
             url.push_str(BASE_URL);
@@ -449,7 +436,8 @@ pub mod quake {
                 .post(&url)
                 .headers(self.header())
                 .json(&post_data)
-                .send() {
+                .send()
+            {
                 Ok(resp) => resp,
                 Err(e) => {
                     if e.is_timeout() {
@@ -536,7 +524,7 @@ pub mod quake {
             } else {
                 Output::info(&format!("Search for {} IPs", s.ip_list.len()));
             }
-            if pagination_id != ""{
+            if pagination_id != "" {
                 s.pagination_id = format!("{}", pagination_id);
             }
             s
@@ -554,7 +542,17 @@ pub mod quake {
             sjqc: i32,
         ) -> Vec<Value> {
             let res = ApiKey::get_api().expect("Failed to read apikey:\t");
-            let response = match Quake::new(res).scroll(query_string,size,time_start,time_end,cdn,mg,zxsj,wxqq,sjqc) {
+            let response = match Quake::new(res).scroll(
+                query_string,
+                size,
+                time_start,
+                time_end,
+                cdn,
+                mg,
+                zxsj,
+                wxqq,
+                sjqc,
+            ) {
                 Ok(response) => response,
                 Err(e) => {
                     Output::error(&format!("Query failed: {}", e.to_string()));
@@ -574,8 +572,20 @@ pub mod quake {
             mg: i32,
             zxsj: i32,
             wxqq: i32,
-            sjqc: i32) -> Result<Vec<Value>, serde_json::Error> {
-            let scroll = Self::init_scroll(query_string, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc, "");
+            sjqc: i32,
+        ) -> Result<Vec<Value>, serde_json::Error> {
+            let scroll = Self::init_scroll(
+                query_string,
+                size,
+                time_start,
+                time_end,
+                cdn,
+                mg,
+                zxsj,
+                wxqq,
+                sjqc,
+                "",
+            );
             let res = Self::get_scroll_data(self, scroll);
             let response: Value = serde_json::from_str(&res)?;
             let code = response["code"].to_string();
@@ -593,11 +603,21 @@ pub mod quake {
             all_data.extend(data_array.iter().cloned());
 
             while data_len != 0 && (data_len as i32) >= size {
-
-                let s_scroll = Self::init_scroll(query_string, size, time_start, time_end, cdn, mg, zxsj, wxqq, sjqc, pagination_id);
+                let s_scroll = Self::init_scroll(
+                    query_string,
+                    size,
+                    time_start,
+                    time_end,
+                    cdn,
+                    mg,
+                    zxsj,
+                    wxqq,
+                    sjqc,
+                    pagination_id,
+                );
                 let res_scroll = Self::get_scroll_data(self, s_scroll);
                 let responses: Value = serde_json::from_str(&res_scroll)?;
-                let  data_array_for_while = responses["data"].as_array().unwrap();
+                let data_array_for_while = responses["data"].as_array().unwrap();
                 // all_data.append(&mut data_array_for_while);
                 all_data.extend(data_array_for_while.iter().cloned());
                 data_len = data_array_for_while.len();
@@ -647,7 +667,7 @@ pub mod quake {
                     .replace("\t", "")
                     .replace("\n", "")
                     .replace("\r", "");
-                let name= data_value["service"]["name"]
+                let name = data_value["service"]["name"]
                     .as_str()
                     .unwrap_or("")
                     .replace("\"", "")
@@ -1247,10 +1267,10 @@ pub mod quake {
             // print!("{:?}",contents);
             let contents_or = contents.replace("\n", " OR ");
             let contents_end = &contents_or[contents_or.len() - 4..contents_or.len()];
-            if contents_end == " OR "{
+            if contents_end == " OR " {
                 let query = &contents_or[0..contents_or.len() - 4];
                 query.to_string()
-            }else {
+            } else {
                 let query = &contents_or;
                 query.to_string()
             }
@@ -1263,17 +1283,16 @@ pub mod quake {
             file.read_to_string(&mut contents).unwrap();
             // print!("{:?}",contents);
             let contents_hosts = contents.replace("\n", "\" OR ip:\"");
-            let contents_end = &contents_hosts[contents_hosts.len()-8..contents_hosts.len()];
-            if contents_end == " OR ip:\""{
-                let query = &contents_hosts[0..contents_hosts.len()-8];
+            let contents_end = &contents_hosts[contents_hosts.len() - 8..contents_hosts.len()];
+            if contents_end == " OR ip:\"" {
+                let query = &contents_hosts[0..contents_hosts.len() - 8];
                 let query_host = &*("ip:\"".to_owned() + query);
                 query_host.to_string()
-            }else {
+            } else {
                 let query = &contents_hosts;
-                let query_host = &*("ip:\"".to_owned() + query  + "\"");
+                let query_host = &*("ip:\"".to_owned() + query + "\"");
                 query_host.to_string()
             }
-
         }
     }
 }

@@ -1,23 +1,20 @@
+use crate::api::ApiKey;
+use crate::common::Output;
 use reqwest::blocking::{Client, RequestBuilder};
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::json;
 use serde_json::Value;
 use std::error::Error;
-use crate::common::Output;
-use crate::api::ApiKey;
 pub struct Gpt;
 
-
 fn remove_control_characters(s: &str) -> String {
-    s.chars()
-        .filter(|c| !c.is_control())
-        .collect::<String>()
+    s.chars().filter(|c| !c.is_control()).collect::<String>()
 }
 impl Gpt {
-    pub fn query_gpt(query_string: &str)-> Result<String, Box<dyn Error>>  {
+    pub fn query_gpt(query_string: &str) -> Result<String, Box<dyn Error>> {
         let mut header = HeaderMap::new();
         const GPT_URL: &str = "https://api.openai.com/v1/chat/completions";
-    
+
         let mut url: String = String::new();
         let api = ApiKey::get_gptapi().expect("Failed to read GPTapikey:\t");
         //print!("{}",api);
@@ -26,13 +23,10 @@ impl Gpt {
             "Authorization",
             HeaderValue::from_str(&format!("Bearer {}", api)).unwrap(),
         );
-        header.insert(
-            "Content-Type",
-            HeaderValue::from_static("application/json"),
-        );
-    
+        header.insert("Content-Type", HeaderValue::from_static("application/json"));
+
         let client = Client::new();
-        let text=r#"
+        let text = r#"
         作为精通Quake测绘引擎语法的AI助手，我将接收一段文字，并将其转化为简洁的、符合Quake测绘引擎语法的查询语句。然后，我将以文本形式返回结果，确保没有额外文字或多余的回车换行。
     
         你熟练掌握了以下语法参考：
@@ -146,8 +140,8 @@ impl Gpt {
         注意：在--size和--start_time和--end_time标签前禁止加and。
         注意：quake使用or表示“或者”,禁止使用|或者||。
         注意：禁止返回额外文字与多余的回车换行和\符号，只需要返回quake搜索语法。"#;
-        let text1= remove_control_characters(text);
-        let sj=query_string;
+        let text1 = remove_control_characters(text);
+        let sj = query_string;
         let json_data = json!({
             "model": "gpt-3.5-turbo",
             "messages": [
@@ -157,27 +151,27 @@ impl Gpt {
                 }
             ]
         });
-    
+
         let response: Result<String, reqwest::Error> = client
             .post(&url)
             .headers(header)
             .json(&json_data)
-            .send().unwrap()
+            .send()
+            .unwrap()
             .text();
-    
+
         match response {
-            Ok(res) =>{ //println!("{}", res);
-            let res: Value = serde_json::from_str(&res)?;
-            let code = res["choices"][0]["message"]["content"].to_string();
-            Ok(code)
-            //println!("{:}",code);
+            Ok(res) => {
+                //println!("{}", res);
+                let res: Value = serde_json::from_str(&res)?;
+                let code = res["choices"][0]["message"]["content"].to_string();
+                Ok(code)
+                //println!("{:}",code);
+            }
+            Err(err) => {
+                eprintln!("Error: {}", err);
+                Err(err.into())
+            }
         }
-            Err(err) => {eprintln!("Error: {}", err);
-            Err(err.into())}
-        }
-       
-    
     }
-
-
 }
