@@ -330,6 +330,7 @@ pub mod quake {
                 "Data time again {} to {}.",
                 s.start_time, s.end_time
             ));
+            print!("{:?}", s);
             let response: Value = match Quake::new(res).search(s) {
                 Ok(response) => response,
                 Err(e) => {
@@ -346,7 +347,7 @@ pub mod quake {
             url.push_str("/api/v3/search/quake_service");
             let client = reqwest::blocking::Client::new();
             let post_data: Map<String, Value> = Self::get_service_post_data(service);
-            //print!("{:?}",post_data);
+            print!("{:?}", post_data);
             //print!("{:?}",self.header());
             let resp: Response = match client
                 .post(&url)
@@ -560,6 +561,7 @@ pub mod quake {
                     std::process::exit(1);
                 }
             };
+            //println!("{:?}",response);
             response
         }
 
@@ -589,6 +591,8 @@ pub mod quake {
             );
             let res = Self::get_scroll_data(self, scroll);
             let response: Value = serde_json::from_str(&res)?;
+            //println!("{:?}",res);
+            //println!("{:?}",response["code"]);
             let code = response["code"].to_string();
             let message = response["message"].as_str().unwrap();
             if code != "0" {
@@ -602,27 +606,27 @@ pub mod quake {
 
             // all_data.append(&mut data_array);
             all_data.extend(data_array.iter().cloned());
-
-            while data_len != 0 && (data_len as i32) >= size {
-                let s_scroll = Self::init_scroll(
-                    query_string,
-                    size,
-                    time_start,
-                    time_end,
-                    cdn,
-                    mg,
-                    zxsj,
-                    wxqq,
-                    sjqc,
-                    pagination_id,
-                );
-                let res_scroll = Self::get_scroll_data(self, s_scroll);
-                let responses: Value = serde_json::from_str(&res_scroll)?;
-                let data_array_for_while = responses["data"].as_array().unwrap();
-                // all_data.append(&mut data_array_for_while);
-                all_data.extend(data_array_for_while.iter().cloned());
-                data_len = data_array_for_while.len();
-            }
+            //println!("{:?}",all_data);
+            // while data_len != 0 && (data_len as i32) >= size {
+            //     let s_scroll = Self::init_scroll(
+            //         query_string,
+            //         size,
+            //         time_start,
+            //         time_end,
+            //         cdn,
+            //         mg,
+            //         zxsj,
+            //         wxqq,
+            //         sjqc,
+            //         pagination_id,
+            //     );
+            //     let res_scroll = Self::get_scroll_data(self, s_scroll);
+            //     let responses: Value = serde_json::from_str(&res_scroll)?;
+            //     let data_array_for_while = responses["data"].as_array().unwrap();
+            //     // all_data.append(&mut data_array_for_while);
+            //     all_data.extend(data_array_for_while.iter().cloned());
+            //     data_len = data_array_for_while.len();
+            // }
             Ok(all_data)
         }
 
@@ -640,6 +644,15 @@ pub mod quake {
             let re = Regex::new(filter).unwrap();
             for i in 0..count {
                 let data_value = value["data"][i].as_object().unwrap();
+                // let key = "components";
+                // if data_value.contains_key(key) {
+                //     println!("{:?}",data_value["components"][0]["product_name_cn"]);
+                //     println!("Key '{}' exists in the HashMap.", key);
+                // } else {
+                //     println!("{:?}",data_value);
+                //     println!("Key '{}' does not exist in the HashMap.", key);
+                // }
+                // println!("{:?}",data_value["components"][0]["product_name_cn"]);
                 let product_name_cn = data_value["components"][0]["product_name_cn"]
                     .as_str()
                     .unwrap_or("")
@@ -939,7 +952,7 @@ pub mod quake {
         ) -> Vec<String> {
             let mut value = value;
             let mut res: Vec<String> = Vec::new();
-            
+
             let count = value["meta"]["pagination"]["count"].as_i64().unwrap() as usize;
             let total = value["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
             Output::success("Successful.");
@@ -964,7 +977,6 @@ pub mod quake {
                     let mut f = String::new();
                     for data in data_type.iter_mut() {
                         if data == &"domain" {
-                           
                             f.push_str(&format!("{}\t", domain));
                         }
                         if data == &"title" {
@@ -1203,10 +1215,7 @@ pub mod quake {
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
             if !s.ip_list.is_empty() {
-                data.insert(
-                    "query".to_string(),
-                    Value::String("is_latest:true".to_string()),
-                );
+                data.insert("query".to_string(), Value::String("".to_string()));
                 data.insert("ip_list".to_string(), Value::Array(s.ip_list));
             } else {
                 data.insert("query".to_string(), Value::String(s.query));
@@ -1228,10 +1237,7 @@ pub mod quake {
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
             if !s.ip_list.is_empty() {
-                data.insert(
-                    "query".to_string(),
-                    Value::String("is_latest:true".to_string()),
-                );
+                data.insert("query".to_string(), Value::String("".to_string()));
                 data.insert("ip_list".to_string(), Value::Array(s.ip_list));
             } else {
                 data.insert("query".to_string(), Value::String(s.query));
@@ -1268,7 +1274,7 @@ pub mod quake {
             let mut file = fs::File::open(filename).unwrap();
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
-            // print!("{:?}",contents);
+            //print!("{:?}",contents);
             let contents_or = contents.replace("\n", " OR ");
             let contents_end = &contents_or[contents_or.len() - 4..contents_or.len()];
             if contents_end == " OR " {
@@ -1285,7 +1291,7 @@ pub mod quake {
             let mut file = fs::File::open(filename).unwrap();
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
-            // print!("{:?}",contents);
+            print!("{:?}", contents);
             let contents_hosts = contents.replace("\n", "\" OR ip:\"");
             let contents_end = &contents_hosts[contents_hosts.len() - 8..contents_hosts.len()];
             if contents_end == " OR ip:\"" {
