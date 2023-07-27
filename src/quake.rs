@@ -330,7 +330,7 @@ pub mod quake {
                 "Data time again {} to {}.",
                 s.start_time, s.end_time
             ));
-            print!("{:?}",s);
+            print!("{:?}", s);
             let response: Value = match Quake::new(res).search(s) {
                 Ok(response) => response,
                 Err(e) => {
@@ -347,7 +347,7 @@ pub mod quake {
             url.push_str("/api/v3/search/quake_service");
             let client = reqwest::blocking::Client::new();
             let post_data: Map<String, Value> = Self::get_service_post_data(service);
-            print!("{:?}",post_data);
+            print!("{:?}", post_data);
             //print!("{:?}",self.header());
             let resp: Response = match client
                 .post(&url)
@@ -952,7 +952,7 @@ pub mod quake {
         ) -> Vec<String> {
             let mut value = value;
             let mut res: Vec<String> = Vec::new();
-            
+
             let count = value["meta"]["pagination"]["count"].as_i64().unwrap() as usize;
             let total = value["meta"]["pagination"]["total"].as_i64().unwrap() as i32;
             Output::success("Successful.");
@@ -977,7 +977,6 @@ pub mod quake {
                     let mut f = String::new();
                     for data in data_type.iter_mut() {
                         if data == &"domain" {
-                           
                             f.push_str(&format!("{}\t", domain));
                         }
                         if data == &"title" {
@@ -1216,10 +1215,7 @@ pub mod quake {
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
             if !s.ip_list.is_empty() {
-                data.insert(
-                    "query".to_string(),
-                    Value::String("".to_string()),
-                );
+                data.insert("query".to_string(), Value::String("".to_string()));
                 data.insert("ip_list".to_string(), Value::Array(s.ip_list));
             } else {
                 data.insert("query".to_string(), Value::String(s.query));
@@ -1241,10 +1237,7 @@ pub mod quake {
             data.insert("end_time".to_string(), Value::String(s.end_time));
             data.insert("shortcuts".to_string(), Value::Array(s.shortcuts));
             if !s.ip_list.is_empty() {
-                data.insert(
-                    "query".to_string(),
-                    Value::String("".to_string()),
-                );
+                data.insert("query".to_string(), Value::String("".to_string()));
                 data.insert("ip_list".to_string(), Value::Array(s.ip_list));
             } else {
                 data.insert("query".to_string(), Value::String(s.query));
@@ -1298,7 +1291,7 @@ pub mod quake {
             let mut file = fs::File::open(filename).unwrap();
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
-             print!("{:?}",contents);
+            print!("{:?}", contents);
             let contents_hosts = contents.replace("\n", "\" OR ip:\"");
             let contents_end = &contents_hosts[contents_hosts.len() - 8..contents_hosts.len()];
             if contents_end == " OR ip:\"" {

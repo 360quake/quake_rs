@@ -8,7 +8,7 @@
 
 2. 或者本地编译：
 
-   ```
+   ```bash
    // 安装rust后使用cargo编译
    cargo  build --release
    ```
