@@ -53,12 +53,10 @@ jobs:
           bin: ./target/release/quake
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
-  delete-release:
-    name: delete Release
-    needs: [tagged-release-test, upload-assets-test]
-    if: failure()
-    uses: sgpublic/delete-release-action@v1.0
-    with:
-      pre-release-drop: true
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "delete release action"
+        if: failure()
+        uses: sgpublic/delete-release-action@v1.0
+        with:
+          pre-release-drop: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
