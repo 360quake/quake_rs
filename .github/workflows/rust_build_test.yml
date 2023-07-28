@@ -1,16 +1,16 @@
-name: rust_build
+name: rust_build_test
 
 permissions:
   contents: write
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - "build_test"
 
 jobs:
-  tagged-release:
-    name: "Tagged Release"
+  tagged-release-test:
+    name: "Tagged Release Test"
     runs-on: "ubuntu-latest"
     steps:
       # ...
@@ -21,9 +21,11 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
+          automatic_release_tag: "latest"
+          title: "Rust Build Test"
+          prerelease: true
 
-  upload-assets:
+  upload-assets-test:
     name: "Upload assets"
     strategy:
       matrix:
