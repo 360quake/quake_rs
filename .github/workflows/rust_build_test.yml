@@ -49,7 +49,7 @@ jobs:
       - name: "upload rust binary action"
         uses: taiki-e/upload-rust-binary-action@v1
         with:
-          # ref: ${{ github.ref }}
+          ref: refs/tags/latest
           bin: ./target/release/quake
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
