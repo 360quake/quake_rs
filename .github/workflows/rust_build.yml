@@ -41,6 +41,9 @@ jobs:
           - target: universal-apple-darwin
             os: macos-latest
     runs-on: ${{ matrix.os }}
+    resources:
+      limits:
+        memory: 2GB
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
@@ -48,6 +51,7 @@ jobs:
         uses: taiki-e/upload-rust-binary-action@v1
         with:
           ref: ${{ github.ref }}
-          bin: ./target/release/quake
+          bin: quake
           target: ${{ matrix.target }}
+          archive: $bin-$tag-$target
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -29,6 +29,7 @@ jobs:
     name: "Upload assets"
     needs: tagged-release-test
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: aarch64-unknown-linux-gnu
@@ -43,6 +44,9 @@ jobs:
           - target: universal-apple-darwin
             os: macos-latest
     runs-on: ${{ matrix.os }}
+    resources:
+      limits:
+        memory: 2GB
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
@@ -50,13 +54,7 @@ jobs:
         uses: taiki-e/upload-rust-binary-action@v1
         with:
           ref: refs/tags/latest
-          bin: ./target/release/quake
+          bin: quake
           target: ${{ matrix.target }}
+          archive: $bin-$target
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "delete release action"
-        if: failure()
-        uses: sgpublic/delete-release-action@v1.0
-        with:
-          pre-release-drop: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
