@@ -24,6 +24,7 @@ jobs:
           prerelease: false
 
   upload-assets:
+    needs: tagged-release
     name: "Upload assets"
     strategy:
       matrix:
