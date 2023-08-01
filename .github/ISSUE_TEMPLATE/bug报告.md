@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Bug报告
+about: 创建Bug报告以帮助我们改进
 title: ''
 labels: ''
 assignees: ''
@@ -32,7 +32,6 @@ assignees: ''
 **桌面（请填写以下信息）**
 
  - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
 
 
