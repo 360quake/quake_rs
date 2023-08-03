@@ -457,6 +457,7 @@ impl ArgParse {
                     Some(output) => output.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                     None => {
                         Quake::show_domain(response, onlycount, true, data_type);
+                        Quake::show_info_jf();
                         std::process::exit(0);
                     }
                 };
@@ -520,6 +521,7 @@ impl ArgParse {
                         Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show_host(response, true);
+                            Quake::show_info_jf();
                             std::process::exit(0);
                         }
                     };
@@ -696,6 +698,7 @@ impl ArgParse {
                         Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show(response, true, filter, data_type);
+                            Quake::show_info_jf();
                             std::process::exit(0);
                         }
                     };
