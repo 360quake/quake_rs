@@ -24,6 +24,7 @@ pub mod quake {
         pub fn new(api_key: String) -> Quake {
             Quake { api_key }
         }
+        
 
         pub fn query_host(query_string: &str, start: i32, size: i32) -> Value {
             Output::info(&format!("Search with {}", query_string));
@@ -330,7 +331,7 @@ pub mod quake {
                 "Data time again {} to {}.",
                 s.start_time, s.end_time
             ));
-            print!("{:?}", s);
+            //print!("{:?}", s);
             let response: Value = match Quake::new(res).search(s) {
                 Ok(response) => response,
                 Err(e) => {
@@ -347,7 +348,7 @@ pub mod quake {
             url.push_str("/api/v3/search/quake_service");
             let client = reqwest::blocking::Client::new();
             let post_data: Map<String, Value> = Self::get_service_post_data(service);
-            print!("{:?}", post_data);
+            //print!("{:?}", post_data);
             //print!("{:?}",self.header());
             let resp: Response = match client
                 .post(&url)
@@ -629,7 +630,22 @@ pub mod quake {
             // }
             Ok(all_data)
         }
-
+        pub fn show_info_jf() {
+            let res = ApiKey::get_api().expect("Failed to read apikey:\t");
+            let info = match Quake::new(res).info() {
+                Ok(value) => value,
+                Err(e) => {
+                    Output::error(&format!("Query failed: {}", e.to_string()));
+                    std::process::exit(1);
+                }
+            };
+            let code = info["code"].as_i64().unwrap_or(-1) as i32;
+            let message = info["message"].as_str().unwrap();
+            let data = info["data"].as_object().unwrap();
+            if code == 0 {
+                let credit = data["credit"].as_i64().unwrap_or(0);
+                Output::info(&format!("月度积分: {}", credit));}
+        }
         pub fn show(
             value: Value,
             showdata: bool,
@@ -1291,7 +1307,7 @@ pub mod quake {
             let mut file = fs::File::open(filename).unwrap();
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
-            print!("{:?}", contents);
+            //print!("{:?}", contents);
             let contents_hosts = contents.replace("\n", "\" OR ip:\"");
             let contents_end = &contents_hosts[contents_hosts.len() - 8..contents_hosts.len()];
             if contents_end == " OR ip:\"" {

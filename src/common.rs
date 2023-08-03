@@ -79,7 +79,7 @@ pub struct ArgParse;
 impl ArgParse {
     pub fn parse() {
         let mut matches = Command::new("Quake Command-Line Application")
-            .version("3.1.4")
+            .version("3.1.6")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
             .subcommand_required(true)
@@ -457,6 +457,7 @@ impl ArgParse {
                     Some(output) => output.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                     None => {
                         Quake::show_domain(response, onlycount, true, data_type);
+                        Quake::show_info_jf();
                         std::process::exit(0);
                     }
                 };
@@ -520,6 +521,7 @@ impl ArgParse {
                         Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show_host(response, true);
+                            Quake::show_info_jf();
                             std::process::exit(0);
                         }
                     };
@@ -696,6 +698,7 @@ impl ArgParse {
                         Some(name) => name.map(|s| s.as_str()).collect::<Vec<_>>().join(", "),
                         None => {
                             Quake::show(response, true, filter, data_type);
+                            Quake::show_info_jf();
                             std::process::exit(0);
                         }
                     };
