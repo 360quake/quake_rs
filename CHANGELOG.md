@@ -1,22 +1,58 @@
-# Changelog
+## 更新日志
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
-
-### [3.1.7](https://github.com/360quake/quake_rs/compare/v3.1.6...v3.1.7) (2023-08-03)
-
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-This project adheres to [Semantic Versioning](https://semver.org).
-
-<!--
-Note: In this file, do not use the hard wrap in the middle of a sentence for compatibility with GitHub comment style markdown rendering.
--->
-
-## [Unreleased]
-
-## [v2.1] - 2022-08-25
-
-- 优化新增排除cdn、排除蜜罐、显示最新数据参数
-- 新增workflows工作流打包成release
+- 2023-08-03 v3.1.6:
+  - 新增查询返回剩余积分
+- 2023-07-28 v3.1.5:
+  - 修复workflow，支持GitHub action编译bin文件
+- 2023-07-27 v3.1.4:
+  - 修复 serach -u无数据问题
+- 2023-07-07 v3.1.3:
+  - 修复 domain 查询是-c 不接参数值报错的 bug
+- 2023-05-08 v3.1.2:
+  - 新增 gpt 自动转换 quake 语法功能
+- 2023-04-07 v3.1.1:
+  - 修复-l 参数无法查询最新数据的 bug
+- 2023-03-31 v3.1.0:
+  - 增加-t product_name_cn,version,protocol 参数
+- 2022-12-02 v3.0.3:
+  - 修复 domain 查询是-c 不接参数值报错的 bug
+- 2022-10-17 v3.0.2:
+  - 修复文件读取时最后一行为空无法生成搜索语句 bug
+- 2022-10-13 v3.0.1:
+  - 更新 clap 到 4.x 版本
+- 2022-10-09 v2.2.3:
+  - 完成 host 批量查询功能
+- 2022-09-27 v2.2.2:
+  - 修复 code 转 i32 时出现 unwrap 的 bug
+  - 完成批量查询自动翻页功能
+- 2022-09-19 v2.2.1:
+  - 优化批量查询的功能，读取 txt 中查询语句，将结果发回到新的 txt 中
+  - 删除部分冗余代码
+- 2022-09-16 v2.2:
+  - 添加批量查询的功能
+  - 读取 txt 中查询语句，将结果发回到新的 txt 中
+- 2022-08-25 v2.1:
+  - 优化新增排除 cdn、排除蜜罐、显示最新数据参数
+  - 新增 workflows 工作流打包成 release
+- 2021-08-12 v2.0.3:
+  - 新增排除蜜罐、排除 CDN、使用最新数据功能
+  - 新增过滤无效请求和数据去重功能
+- 2021-04-06 v2.0.2:
+  - 修复域名搜不到的问题。 :)
+- 2021-04-06 v2.0.1:
+  - 优化搜索结果，去除重复数据。
+  - 添加文件上传搜索功能。
+  - 添加指定时间搜索功能。
+  - 优化代码。
+- 2021-01-22 v1.0.5:
+  - 修复 TLS 解构解析不一致的问题。
+  - 修复命令行工具被杀软报毒问题。
+- 2021-01-15 v1.0.4:
+  - 优化 title 显示，删除不可见字符。
+  - host 命令新增地理位置、设备信息和更新时间字段。
+  - 修复域名查询，出现无关域名的问题。
+- 2021-01-08 v1.0.3:
+  - 修复 init 命令 bug
+  - 新增证书域名提取。
+- 2020-12-25 v1.0.2 :
+  - 添加 info 和 honeypot 子命令，可以查看个人信息和进行蜜罐识别。
