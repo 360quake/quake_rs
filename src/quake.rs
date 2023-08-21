@@ -660,29 +660,26 @@ pub mod quake {
             let re = Regex::new(filter).unwrap();
             for i in 0..count {
                 let data_value = value["data"][i].as_object().unwrap();
-                // let key = "components";
-                // if data_value.contains_key(key) {
-                //     println!("{:?}",data_value["components"][0]["product_name_cn"]);
-                //     println!("Key '{}' exists in the HashMap.", key);
-                // } else {
-                //     println!("{:?}",data_value);
-                //     println!("Key '{}' does not exist in the HashMap.", key);
-                // }
-                // println!("{:?}",data_value["components"][0]["product_name_cn"]);
-                let product_name_cn = data_value["components"][0]["product_name_cn"]
+                let mut product_name_cn="".to_string();
+                let mut version="".to_string();
+                let key = "components";
+                if data_value.contains_key(key) {
+                    product_name_cn = data_value["components"][0]["product_name_cn"]
                     .as_str()
                     .unwrap_or("")
                     .replace("\"", "")
                     .replace("\t", "")
                     .replace("\n", "")
                     .replace("\r", "");
-                let version = data_value["components"][0]["version"]
+                    version = data_value["components"][0]["version"]
                     .as_str()
                     .unwrap_or("")
                     .replace("\"", "")
                     .replace("\t", "")
                     .replace("\n", "")
                     .replace("\r", "");
+                } 
+               
                 let title = data_value["service"]["http"]["title"]
                     .as_str()
                     .unwrap_or("")
