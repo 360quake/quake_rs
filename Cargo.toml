@@ -16,7 +16,7 @@ log = "^0.4.20"
 env_logger = "^0.10.0"
 ansi_term = "^0.12.1"
 chrono = "^0.4.25"
-regex = "^1.9.4"
+regex = "^1.9.5"
 ipaddress = "^0.1.1"
 
 [profile.release]
