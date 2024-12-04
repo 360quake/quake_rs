@@ -12,6 +12,7 @@ pub mod quake {
     use std::fs::OpenOptions;
     use std::io::{Read, Write};
     use std::{fs, io};
+    use std::env;
 
     //BaseUrl is the basis for all of our api requests.
     const BASE_URL: &'static str = "https://quake.360.net";
@@ -1305,7 +1306,12 @@ pub mod quake {
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
             //print!("{:?}", contents);
-            let contents_hosts = contents.replace("\n", "\" OR ip:\"");
+            //判断系统版本
+            let newline = match env::consts::OS {
+                "windows" => "\r\n",  // Windows 使用 \r\n
+                _ => "\n",            // 其他系统使用 \n
+            };
+            let contents_hosts = contents.replace(newline, "\" OR ip:\"");
             let contents_end = &contents_hosts[contents_hosts.len() - 8..contents_hosts.len()];
             if contents_end == " OR ip:\"" {
                 let query = &contents_hosts[0..contents_hosts.len() - 8];
