@@ -1289,7 +1289,11 @@ pub mod quake {
             let mut contents = String::new();
             file.read_to_string(&mut contents).unwrap();
             //print!("{:?}",contents);
-            let contents_or = contents.replace("\n", " OR ");
+            let newline = match env::consts::OS {
+                "windows" => "\r\n",  // Windows 使用 \r\n
+                _ => "\n",            // 其他系统使用 \n
+            };
+            let contents_or = contents.replace(newline, " OR ");
             let contents_end = &contents_or[contents_or.len() - 4..contents_or.len()];
             if contents_end == " OR " {
                 let query = &contents_or[0..contents_or.len() - 4];
