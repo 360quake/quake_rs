@@ -15,7 +15,7 @@ dirs = "^5.0.1"
 log = "^0.4.22"
 env_logger = "^0.11.5"
 ansi_term = "^0.12.1"
-chrono = "^0.4.38"
+chrono = "^0.4.39"
 regex = "^1.11.1"
 ipaddress = "^0.1.1"
 
