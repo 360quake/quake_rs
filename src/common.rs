@@ -11,16 +11,27 @@ use std::error::Error;
 /*
   TODO: Comment
 */
+// 派生序列化、反序列化和调试输出的 trait
 #[derive(Serialize, Deserialize, Debug)]
+/// 表示服务查询的结构体，包含查询所需的各种参数
 pub struct Service {
+    /// 查询语句，用于指定查询的条件
     pub query: String,
+    /// 查询的起始位置，用于分页查询
     pub start: i32,
+    /// 查询结果的数量，即每页返回的记录数
     pub size: i32,
+    /// 是否忽略缓存，true 表示忽略缓存，直接从数据源查询
     pub ignore_cache: bool,
+    /// 是否只查询最新数据，true 表示只返回最新的数据
     pub latest: bool,
+    /// 查询的开始时间，格式通常为特定的时间字符串
     pub start_time: String,
+    /// 查询的结束时间，格式通常为特定的时间字符串
     pub end_time: String,
+    /// IP 地址列表，用于筛选特定 IP 相关的数据
     pub ip_list: Vec<Value>,
+    /// 快捷方式列表，可能包含一些预设的查询条件或配置
     pub shortcuts: Vec<Value>,
 }
 
