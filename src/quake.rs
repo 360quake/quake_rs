@@ -8,7 +8,6 @@ pub mod quake {
     use reqwest::blocking::Response;
     use reqwest::header::{HeaderMap, HeaderValue};
     use serde_json::{Map, Number, Value};
-    use std::alloc::System;
     use std::fs::OpenOptions;
     use std::io::{Read, Write};
     use std::{fs, io};
@@ -16,7 +15,7 @@ pub mod quake {
 
     //BaseUrl is the basis for all of our api requests.
     const BASE_URL: &'static str = "https://quake.360.net";
-    const GPT_URL: &'static str = "https://api.openai.com/v1/chat/completions";
+    // Removed unused constant to fix the warning
     pub struct Quake {
         api_key: String,
     }
@@ -388,48 +387,7 @@ pub mod quake {
             }
             Ok(response)
         }
-        pub fn query_gpt(&self, service: Service) -> Result<Value, serde_json::Error> {
-            let mut url = String::new();
-            url.push_str(BASE_URL);
-            url.push_str("/api/v3/search/quake_service");
-            let client = reqwest::blocking::Client::new();
-            let post_data: Map<String, Value> = Self::get_service_post_data(service);
-            let resp: Response = match client
-                .post(&url)
-                .headers(self.header())
-                .json(&post_data)
-                .send()
-            {
-                Ok(resp) => resp,
-                Err(e) => {
-                    if e.is_timeout() {
-                        Output::error("Connect Timeout!!");
-                    } else {
-                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
-                    }
-                    std::process::exit(1);
-                }
-            };
-            let res = match resp.text() {
-                Ok(resp) => resp,
-                Err(e) => {
-                    if e.is_timeout() {
-                        Output::error("Connect Timeout!!");
-                    } else {
-                        Output::error(&format!("Connect error!!!\r\n{}", e.to_string()));
-                    }
-                    std::process::exit(1);
-                }
-            };
-            let response: Value = serde_json::from_str(&res)?;
-            let code = response["code"].to_string();
-            let message = response["message"].as_str().unwrap();
-            if code != "0" {
-                Output::error(&format!("Query failed: {}", message));
-                std::process::exit(1);
-            }
-            Ok(response)
-        }
+        // Removed unused method `query_gpt` to fix the warning.
         pub fn get_scroll_data(&self, scroll: Scroll) -> String {
             let mut url = String::new();
             url.push_str(BASE_URL);
@@ -602,8 +560,8 @@ pub mod quake {
                 std::process::exit(1);
             }
             let data_array = response["data"].as_array().unwrap();
-            let pagination_id = response["meta"]["pagination_id"].as_str().unwrap();
-            let mut data_len = data_array.len();
+            let _pagination_id = response["meta"]["pagination_id"].as_str().unwrap();
+            let mut _data_len = data_array.len();
             let mut all_data = Vec::new();
 
             // all_data.append(&mut data_array);
@@ -641,7 +599,7 @@ pub mod quake {
                 }
             };
             let code = info["code"].as_i64().unwrap_or(-1) as i32;
-            let message = info["message"].as_str().unwrap();
+            info["message"].as_str().unwrap();
             let data = info["data"].as_object().unwrap();
             if code == 0 {
                 let credit = data["credit"].as_i64().unwrap_or(0);

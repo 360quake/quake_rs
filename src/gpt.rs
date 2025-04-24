@@ -1,9 +1,8 @@
 // 引入 API 密钥模块
 use crate::api::ApiKey;
 // 引入公共模块中的输出工具
-use crate::common::Output;
-// 引入同步请求客户端和请求构建器
-use reqwest::blocking::{Client, RequestBuilder};
+// 引入同步请求客户端
+use reqwest::blocking::Client;
 // 引入请求头相关模块
 use reqwest::header::{HeaderMap, HeaderValue};
 // 引入 JSON 处理库

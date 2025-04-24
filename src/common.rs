@@ -1,9 +1,9 @@
 // use std::process::Command;
+use crate::api::ApiKey;
 use crate::gpt::Gpt;
 use crate::quake::quake::Quake;
-use crate::{api::ApiKey, gpt};
 use ansi_term::Colour::{Blue, Green, Red, Yellow};
-use clap::{App, Arg, ArgMatches, Command};
+use clap::{Arg, Command};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -89,7 +89,7 @@ pub struct ArgParse;
 
 impl ArgParse {
     pub fn parse() {
-        let mut matches = Command::new("Quake Command-Line Application")
+        let matches = Command::new("Quake Command-Line Application")
             .version("3.1.7")
             .author("Author: 360 Quake Team  <quake@360.cn>")
             .about("Dose awesome things.")
@@ -810,7 +810,7 @@ impl ArgParse {
                 //         }
                 //     }
                 // };
-                let mut query = gpt_sj.unwrap().trim_matches('"').replace("\\", "");
+                let query = gpt_sj.unwrap().trim_matches('"').replace("\\", "");
 
                 let sizere = Regex::new(r"--size\s+(\d+)").unwrap();
                 let time_startre = Regex::new(r"--time_start\s+(\d+-\d+)(?:-\d+)?").unwrap();
@@ -896,13 +896,13 @@ impl ArgParse {
                     _ => 0,
                 };
 
-                let mut query = sizere.replace_all(&query, "").to_string();
-                let mut query = time_startre.replace_all(&query, "").to_string();
-                let mut query = time_endre.replace_all(&query, "").to_string();
+                let query = sizere.replace_all(&query, "").to_string();
+                let query = time_startre.replace_all(&query, "").to_string();
+                let query = time_endre.replace_all(&query, "").to_string();
                 let outputquery = query.as_str();
-                let mut query = outputre.replace_all(&query, "").to_string();
-                let mut query = andre.replace_all(&query, "").to_string();
-                let mut query = query.replace("\"", "").to_string();
+                let query = outputre.replace_all(&query, "").to_string();
+                let query = andre.replace_all(&query, "").to_string();
+                let query = query.replace("\"", "").to_string();
 
                 //query.push('"');
                 let query = query.as_str();

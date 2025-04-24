@@ -90,7 +90,7 @@ impl ApiKey {
     ///
     /// # 返回值
     /// 目前总是返回 `true`，可根据实际需求实现检查逻辑
-    fn check_gptapi(apikey: String) -> bool {
+    fn check_gptapi(_apikey: String) -> bool {
         true
     }
 
