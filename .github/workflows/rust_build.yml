@@ -1,30 +1,41 @@
+# 工作流名称
 name: rust_build
 
+# 权限设置，允许写入仓库内容
 permissions:
   contents: write
 
+# 触发工作流的事件
 on:
   push:
+    # 当推送的标签以 "v" 开头时触发
     tags:
       - "v*"
 
 jobs:
+  # 标记版本发布的任务
   tagged-release:
     name: "Tagged Release"
     runs-on: "ubuntu-latest"
     steps:
       # ...
+      # 检出代码到工作目录
       - name: Checkout Code
-        uses: actions/checkout@master
+        # 使用固定版本的 action 以提高稳定性
+        uses: actions/checkout@v4
 
+      # 创建版本发布
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        # 使用固定版本的 action 以提高稳定性
+        uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
 
+  # 上传资产的任务
   upload-assets:
     name: "Upload assets"
+    # 矩阵策略，在不同操作系统上运行任务
     strategy:
       matrix:
         os:
@@ -33,8 +44,11 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
+      # 检出代码到工作目录
       - name: Checkout Code
-        uses: actions/checkout@master
+        # 使用固定版本的 action 以提高稳定性
+        uses: actions/checkout@v4
+      # 上传 Rust 二进制文件
       - name: "upload rust binary action"
         uses: taiki-e/upload-rust-binary-action@v1
         with:

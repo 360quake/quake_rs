@@ -9,3 +9,16 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # 添加拉取请求的标签
+    labels:
+      - "dependencies"
+    # 允许的更新类型
+    open-pull-requests-limit: 10
+    # 允许的更新类型
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # 自动合并配置
+    auto-merge:
+      enabled: true
+      merge-method: "squash"

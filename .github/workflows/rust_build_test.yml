@@ -1,32 +1,45 @@
+# 工作流名称，用于标识该 GitHub Actions 工作流
 name: rust_build_test
 
+# 工作流所需的权限，允许对仓库内容进行写入操作
 permissions:
   contents: write
 
+# 触发工作流的事件，当代码推送到 build_test 分支时触发
 on:
   push:
     branches:
       - "build_test"
 
 jobs:
+  # 标记版本发布测试的任务
   tagged-release-test:
     name: "Tagged Release Test"
+    # 指定运行该任务的环境为最新的 Ubuntu 系统
     runs-on: "ubuntu-latest"
     steps:
       # ...
+      # 检出代码到工作目录，使用固定版本 v4 提高稳定性
       - name: Checkout Code
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
+      # 创建版本发布，使用固定版本 v1.2.1 提高稳定性
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
+          # 使用 GitHub 提供的令牌进行认证
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          # 自动发布的标签名称
           automatic_release_tag: "latest"
+          # 版本发布的标题
           title: "Rust Build Test"
+          # 标记为预发布版本
           prerelease: true
 
+  # 上传资产测试的任务
   upload-assets-test:
     name: "Upload assets"
+    # 使用矩阵策略，在不同的操作系统和目标平台上运行任务
     strategy:
       matrix:
         include:
@@ -38,17 +51,24 @@ jobs:
             os: ubuntu-latest
           - target: x86_64-apple-darwin
             os: macos-latest
-          # Universal macOS binary is supported as universal-apple-darwin.
+          # 支持 macOS 通用二进制文件
           - target: universal-apple-darwin
             os: macos-latest
+    # 根据矩阵策略选择运行环境
     runs-on: ${{ matrix.os }}
     steps:
+      # 检出代码到工作目录，使用固定版本 v4 提高稳定性
       - name: Checkout Code
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+      # 上传 Rust 二进制文件
       - name: "upload rust binary action"
         uses: taiki-e/upload-rust-binary-action@v1
         with:
+          # 当前 Git 引用
           ref: ${{ github.ref }}
+          # 要上传的二进制文件路径
           bin: ./target/release/quake
+          # 目标平台
           target: ${{ matrix.target }}
+          # 使用 GitHub 提供的令牌进行认证
           token: ${{ secrets.GITHUB_TOKEN }}
