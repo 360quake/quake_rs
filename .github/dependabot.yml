@@ -18,7 +18,7 @@ updates:
     allow:
       - dependency-type: "direct"
       - dependency-type: "indirect"
-    # 自动合并配置
-    auto-merge:
-      enabled: true
-      merge-method: "squash"
+    # 移除不在架构内的 auto-merge 配置
+    # auto-merge:
+    #   enabled: true
+    #   merge-method: "squash"
