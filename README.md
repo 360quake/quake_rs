@@ -4,6 +4,9 @@
 
 ## 构建与接入
 
+- [面向人的安装与接入文档](docs/mcp-install.md) 提供 Windows、Linux 和 macOS 的安装命令、客户端配置和排错步骤。
+- [面向 Agent 的安装手册](docs/mcp-install-agent.md) 提供可执行的安装步骤、配置模板和 MCP 验收流程。
+
 安装当前稳定版 Rust。Linux 上构建还需要 OpenSSL 开发库和 `pkg-config`。
 
 ```sh
@@ -16,20 +19,7 @@ cargo build --release --locked
 cargo build --release --locked --manifest-path legacy/quake_rs/Cargo.toml
 ```
 
-在 Quake 用户中心获取 API Token。用 MCP 客户端启动 `target/release/quake-mcp`，Windows 下文件名为 `quake-mcp.exe`。以下为采用 `mcpServers` 格式的客户端示例，`command` 使用构建产物的绝对路径，`QUAKE_TOKEN` 可由客户端的密钥管理功能注入。
-
-```json
-{
-  "mcpServers": {
-    "quake": {
-      "command": "/absolute/path/to/quake-mcp",
-      "env": {
-        "QUAKE_TOKEN": "<your-quake-api-token>"
-      }
-    }
-  }
-}
-```
+从源码构建后，MCP 客户端的 `command` 使用 `target/release/quake-mcp` 的绝对路径。Windows 下文件名为 `quake-mcp.exe`。
 
 ## 工具
 
