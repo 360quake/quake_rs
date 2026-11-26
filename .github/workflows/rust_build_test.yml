@@ -67,7 +67,7 @@ jobs:
           # 当前 Git 引用
           ref: ${{ github.ref }}
           # 要上传的二进制文件路径
-          bin: ./target/release/quake
+          bin: quake-mcp
           # 目标平台
           target: ${{ matrix.target }}
           # 使用 GitHub 提供的令牌进行认证

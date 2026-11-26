@@ -1,0 +1,25 @@
+name: Rust checks
+
+on:
+  push:
+    branches: [master, feat/quake-mcp]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - run: cargo +stable fmt --all -- --check
+      - run: cargo +stable clippy --locked --all-targets -- -D warnings
+      - run: cargo +stable test --locked
+      - run: cargo +stable build --release --locked
+      - run: cargo +stable build --locked --manifest-path legacy/quake_rs/Cargo.toml
+      - run: ./legacy/quake_rs/target/debug/quake${{ runner.os == 'Windows' && '.exe' || '' }} --help

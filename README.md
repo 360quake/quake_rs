@@ -1,526 +1,77 @@
-# Quake Command-Line Application
+# Quake MCP 与原始 Rust CLI
 
-## 安装
+本地 Rust MCP Server，用于查询 360 Quake 已收录的主机和服务数据。支持偏移分页、逐页游标查询、聚合、字段发现和账号积分查询。接口参数与权限以 [360 Quake 帮助中心](https://quake.360.net/quake/#/help) 第 4 章为准。
 
-1. 直接下载即可使用
+## 构建与接入
 
-   <https://github.com/360quake/quake_rs/releases/>
+安装当前稳定版 Rust。Linux 上构建还需要 OpenSSL 开发库和 `pkg-config`。
 
-2. 或者本地编译：
-
-   ```bash
-   // 安装rust后使用cargo编译
-   cargo  build --release
-   ```
-
-## 问题反馈
-
-请添加微信：quake_360 邀您加入技术交流群 :)
-
-## 使用方法
-
-```bash
-Quake Command-Line Application 1.0.4
-Author: soap  <imelloit@gmail.com>
-Dose awesome things.
-
-USAGE:
-    quake.exe <SUBCOMMAND>
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    domain      View all available information for a domain.
-    gpt         Artificial intelligence engine, directly say what you want to check without
-                    grammar
-    gptinit     Initialize the gtpapi
-    help        Print this message or the help of the given subcommand(s)
-    honeypot    Check whether the IP is a honeypot or not.
-    host        View all available information for an IP address
-    info        Shows general information about your account
-    init        Initialize the Quake command-line
-    search      Search the Quake database
+```sh
+cargo build --release --locked
 ```
 
-#### 1. 初始化
+原始 `quake` CLI 保存在 [`legacy/quake_rs`](legacy/quake_rs/README.md)，源码和依赖取自提交 `5036473`。它使用原有凭证配置，可独立构建。
 
-_ApiKey 请到 Quake 个人中心查看_
-
-```bash
-quake init apikey
+```sh
+cargo build --release --locked --manifest-path legacy/quake_rs/Cargo.toml
 ```
 
-如果需要使用 gpt 参数需要先初始化 chatgpt api
-chatgpt 的 api 请到该网站获取：<https://platform.openai.com/account/api-keys>
+在 Quake 用户中心获取 API Token。用 MCP 客户端启动 `target/release/quake-mcp`，Windows 下文件名为 `quake-mcp.exe`。以下为采用 `mcpServers` 格式的客户端示例，`command` 使用构建产物的绝对路径，`QUAKE_TOKEN` 可由客户端的密钥管理功能注入。
 
-```bash
-quake gptinit apikey
+```json
+{
+  "mcpServers": {
+    "quake": {
+      "command": "/absolute/path/to/quake-mcp",
+      "env": {
+        "QUAKE_TOKEN": "<your-quake-api-token>"
+      }
+    }
+  }
+}
 ```
 
-#### 2. 域名查询
+## 工具
 
-```bash
-┬─[kali@kali:~/q/t/release]─[09:29:44 PM]─[G:master=]
-╰─>$ ./quake domain
-quake-domain
-View all available information for a domain.
+`dataset` 取 `service` 或 `host`。`query` 使用 Quake DSL。时间参数采用 UTC 的 `YYYY-MM-DD HH:MM:SS` 格式，是否可用由账号权限决定。
 
-USAGE:
-    quake domain [FLAGS] [OPTIONS] [DOMAIN_NAME]
+| 工具 | 参数与行为 |
+| --- | --- |
+| `quake_search` | `dataset`、`query`、可选的 `start`、`size`、`start_time`、`end_time`、`include`、`exclude`、`latest`。用响应的 `next_start` 继续偏移分页。 |
+| `quake_scroll` | 首次调用传 `dataset`、`query` 和可选搜索参数，续页时只传 `cursor`。服务保存原始参数并逐页请求。句柄单次有效，最长 5 分钟，进程重启后失效。 |
+| `quake_aggregate` | `dataset`、`query`、含一到两个维度的 `aggregation_list`，以及可选的 `size`、起止时间和 `latest`。结果为每个维度的桶。 |
+| `quake_fields` | `dataset` 和 `purpose`。`search` 列出投影字段，`aggregation` 列出聚合维度。 |
+| `quake_account_info` | 无参数。返回月度积分、永久积分和账号停用状态。 |
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+查询自有资产时，可以先取一小页，再根据结果决定是否继续。例如，以下参数用保留域名展示调用格式。
 
-OPTIONS:
-    -o, --output <FILENAME>    Output result to file.
-        --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
-        --start <NUMBER>       Starting position of the query (Default 0).
-    -t, --type <TYPE>          Fields displayed:domain,ip,port,title. (Default domain, ip)
-
-ARGS:
-    <DOMAIN_NAME>    The domain name to be queried.163.251.254 extsign-b.browser.360.cn
+```json
+{
+  "dataset": "service",
+  "query": "domain:\"example.com\"",
+  "size": 5,
+  "include": ["ip", "port", "service.name"]
+}
 ```
 
-域名查询可以查询某个域名的子域名和相似域名，或者域名周含有某些关键子的域名，如：oa、vpn 等，可以设置 start 和 size 参数进行翻页，可以使用-o/--output，将查询结果保存至文件。
--t 参数可以控制显示的字段，有 domain、ip、端口和站点 title 等。
+搜索默认每页 10 条，上限 50 条。聚合每维默认 5 条，上限 100 条。这些是 MCP 的本地限制。省略 `include` 和 `exclude` 时，搜索采用基础会员可用的精简字段。
 
-##### Example
+`latest` 适用于服务搜索、服务游标首调和服务聚合。设置 `false` 可查询历史记录。复现旧 CLI 时还需传入相同的时间窗口。省略时由 Quake 采用默认值，主机查询应省略该参数。
 
-```bash
-┬─[kali@kali:~/q/t/release]─[09:33:10 PM]─[G:master=]
-╰─>$ ./quake domain 360.cn --start 10 --size 10
-[+] Search with domain:"*.360.cn"
-[+] Successful.
-[+] count: 10   total: 11586
-221.130.199.210 audit-s.scan.shouji.360.cn
-112.65.68.50    mall.safe.360.cn
-112.65.68.51    mall.safe.360.cn
-27.115.124.94   salesvideotest.crm.360.cn
-101.198.192.187 salesvideotest.crm.360.cn
-111.206.65.160  0479ae.link.yunpan.360.cn
-111.206.65.160  0479ae.link.yunpan.360.cn
-112.64.200.118  hb065779_893.fx.sj.360.cn
-112.64.200.118  hb065779_893.fx.sj.360.cn
-180.163.235.141 up-q.f.360.cn
+工具在 `structuredContent.data` 中返回机器可读结果。查询结果含 `items`、`count`、`total`、`total_relation`、`has_more` 和续页参数。`has_more: null` 表示上游信息不足，`total_relation: gte` 表示总量下界。游标页的 `has_more: true` 表示可以续页，下一页仍可能为空。游标终止页以 `count: 0` 和 `has_more: false` 表示结束，同时保留此前已知的查询总量。工具错误通过 `isError` 和 `structuredContent.error` 返回。
 
-┬─[kali@kali:~/q/t/release]─[09:33:19 PM]─[G:master=]
-╰─>$ ./quake domain 360.cn --start 10 --size 10 -t ip,port,domain,title
-[+] Search with domain:*.360.cn
-[+] Successful.
-[+] count: 10   total: 11586
-221.130.199.210 443     audit-s.scan.shouji.360.cn
-112.65.68.50    80      mall.safe.360.cn        安全卫士-360商城
-112.65.68.51    443     mall.safe.360.cn        安全卫士-360商城
-27.115.124.94   80      salesvideotest.crm.360.cn       403 Forbidden
-101.198.192.187 443     salesvideotest.crm.360.cn       400 The plain HTTP request was sent to HTTPS port
-111.206.65.160  80      0479ae.link.yunpan.360.cn       安全存储的云盘_360安全云盘
-111.206.65.160  443     0479ae.link.yunpan.360.cn       安全存储的云盘_360安全云盘
-112.64.200.118  80      hb065779_893.fx.sj.360.cn
-112.64.200.118  443     hb065779_893.fx.sj.360.cn
-180.163.235.141 80      up-q.f.360.cn   403 Forbidden
+搜索和聚合可能消耗 Quake 积分。每次工具调用最多发出一个上游请求，服务同一时刻处理一个请求。超时可能已消耗积分，服务不自动重试已发送的请求。续页请求一旦开始使用句柄，该句柄即失效。
+
+## 迁移和验证
+
+本项目从 [360quake/quake_rs](https://github.com/360quake/quake_rs) 重构而来。原先的 `search`、`host` 和 `info` 工作流分别对应搜索或游标工具、主机数据集、账号工具。Agent 生成 DSL 并调用 MCP，Quake 凭证由 MCP 进程的环境提供。
+
+```sh
+cargo fmt --all -- --check
+cargo clippy --locked --all-targets -- -D warnings
+cargo test --locked
 ```
 
-#### 3. IP 查询
+测试使用本地 mock 和 MCP 子进程，不需要真实 Token。实际部署后可以用自己的 Token 和自有资产做小页查询、续页与聚合验证。
 
-```bash
-┬─[kali@kali:~/q/t/release]─[09:35:45 PM]─[G:master=]
-╰─>$ ./quake host
-quake-host
-View all available information for an IP address
-
-USAGE:
-    quake host [OPTIONS] [ip]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -o, --output <FILENAME>    Save the host information in the given file (append if file exists).
-    -q, --query_host_file <FILENAME>    Quake Host file (Only support --size); Example: quake search -q hosts.txt
-        --size <NUMBER>        The size of the number of responses, up to a maximum of 100 (Default 10).
-        --start <NUMBER>       Starting position of the query (Default 0).
-
-ARGS:
-    <ip>     View all available information for an IP address
-```
-
-可以快速查询某个 IP 或 IP 段下开放的端口和服务。start/size 参数支持翻页，-o/--output 支持将搜索结果保存至文件。
-
-##### Example
-
-```bash
-┬─[kali@kali:~/q/t/release]─[10:14:57 PM]─[G:master=]
-╰─>$ ./quake host 5.188.34.101
-[+] Search with ip:5.188.34.101
-[+] Successful.
-[+] count: 1    total: 1
-IP: 5.188.34.101        Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 3306                 mysql    2020-10-03T03:23:14.385Z
-| 8080                  http    2020-10-29T01:11:01.721Z
-| 80                    http    2020-10-30T16:19:33.698Z
-| 25                    smtp    2020-11-05T15:10:57.932Z
-| 22                     ssh    2020-12-11T03:02:01.624Z
-
-┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
-╰─>$ ./quake host 5.188.34.101/24
-[+] Search with ip:5.188.34.101/24
-[+] Successful.
-[+] count: 10   total: 222
-IP: 5.188.34.203        Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 80                    http    2020-12-21T14:44:17.322Z
-
-
-IP: 5.188.34.17 Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 22                     ssh    2020-06-30T07:14:12.077Z
-| 111                rpcbind    2020-12-22T15:56:07.436Z
-| 123                    ntp    2020-12-24T12:53:05.514Z
-
-
-IP: 5.188.34.41 Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 22                     ssh    2021-01-06T16:30:24.237Z
-
-
-IP: 5.188.34.252        Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 995                   pop3    2020-12-14T21:23:37.832Z
-| 80                    auto    2020-12-21T22:42:56.926Z
-
-
-IP: 5.188.34.218        Country: Singapore      Province: Singapore     City: Singapore
-| Port              Protocol                    time
-| 143                   imap    2020-12-17T02:45:47.230Z
-| 25                    smtp    2020-12-21T12:54:12.368Z
-| 3306                 mysql    2020-12-28T02:10:44.445Z
-...
-
-┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
-╰─>$ ./quake host -q host.txt -o host_result.txt
-[+] Search with ip:"111.229.238.63" OR ip:"111.229.238.64" OR ip:"111.229.231.63/26" OR ip:"111.229.232.63/24"
-[+] Successfully saved 284 pieces of data to host_result.txt
-
-┬─[kali@kali:~/q/t/release]─[10:15:06 PM]─[G:master=]
-╰─>$ ./quake host -q host.txt
-[+] Search with ip:"111.229.238.63" OR ip:"111.229.238.64" OR ip:"111.229.231.63/26" OR ip:"111.229.232.63/24"
-IP: 111.229.231.62      Country: China  Province: Shanghai      City: Shanghai City
-| Port              Protocol                    time
-| 8080                          2020-03-05T22:12:19.869Z
-| 10134            orcus-rat    2020-05-14T20:49:03.507Z
-| 12000            entextxid    2021-10-12T04:13:47.479Z
-| 10626                 http    2021-10-12T04:13:48.936Z
-| 1112                   icp    2021-10-12T04:13:51.914Z
-| 10778                 http    2021-10-12T04:13:50.894Z
-| 30089                 http    2022-07-07T07:37:31.263Z
-| 51001                 http    2022-09-23T07:56:39.626Z
-| 51002                 http    2022-09-23T07:33:44.401Z
-| 52869                 http    2022-09-27T11:40:48.949Z
-| 8091                  http    2022-10-01T20:46:58.201Z
-| 11712                 http    2022-10-02T16:37:29.825Z
-| 11210                 http    2022-10-02T17:07:48.967Z
-| 10020                 http    2022-10-03T17:57:45.262Z
-| 9943                  http    2022-10-04T08:06:36.923Z
-| 7070                  http    2022-10-04T16:09:54.222Z
-| 12028              unknown    2022-10-06T12:25:34.912Z
-| 1025                  http    2022-10-07T16:54:59.403Z
-
-IP: 111.229.231.5       Country: China  Province: Shanghai      City: Shanghai City
-| Port              Protocol                    time
-| 80                    http    2020-03-04T07:42:10.798Z
-| 8888                  http    2020-01-10T21:19:47Z
-| 88                    http    2021-12-06T14:26:32.224Z
-| 110                   http    2022-09-03T21:56:02.495Z
-| 2121                  http    2022-09-16T23:20:46.420Z
-| 119                   http    2022-09-21T22:05:34.596Z
-| 25                    http    2022-09-27T08:17:06.244Z
-| 49665                msrpc    2022-10-06T02:45:55.275Z
-| 23                    http    2022-10-07T09:19:16.701Z
-...
-
-```
-
-#### 3. 搜索查询
-
-```bash
-┬─[kali@kali:~/q/t/release]─[09:44:34 PM]─[G:master=]
-╰─>$ ./quake search
-quake-search
-Search the Quake database
-
-USAGE:
-    quake search [OPTIONS] [query_string]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -c, --cdn <NUMBER>               Exclude cdn data when parameter is 1,Not excluded by default
-    -d, --deduplication <NUMBER>     When the parameter is 1, data deduplication is performed, and no deduplication is
-                                     performed by default.
-    -f, --filter <TYPE>              Filter search results with more regular expressions.
-                                     Example: quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version:
-                                     (.*)"
-    -r, --filter_request <NUMBER>    When the parameter is 1, invalid requests are filtered, such as 400, 401, 403 and
-                                     other request data, the default is not filtered
-    -m, --honey_jar <NUMBER>         Exclude honey_jar data when parameter is 1,Not excluded by default
-    -l, --latest_data <NUMBER>       Display latest data when parameter is 1,Not up to date by default
-    -o, --output <FILENAME>          Save the host information in the given file (append if file exists).
-    -q, --query_file <FILENAME>      Quake Querystring file; Example: quake search -q test.txt
-        --size <NUMBER>              The size of the number of responses, up to a maximum of 100 (Default 10).
-        --start <NUMBER>             Starting position of the query (Default 0).
-    -e, --end_time <TIME END>        Search end time
-                                     Example: quake search 'port:80' -e 2020-01-01
-    -s, --start_time <TIME START>    Search start time
-                                     Example: quake search 'port:80' -s 2020-01-01
-    -t, --type <TYPE>                Fields displayed:ip,port,title,country,province,city,owner,time,ssldomain,domain.
-                                     (Default ip,port)
-    -u, --upload <IP File>           Uploading *.txt files containing only IP addresses, with no more than 1000 IPs.
-                                     Example: quake search -u ips.txt
-
-ARGS:
-    <query_string>    Quake Querystring; Example: quake search 'port:80'
-```
-
-搜索功能相当于在 Quake 的搜索框中进行搜索，支持 Quake 的搜索语法。start/size 支持翻页，-t 显示返回的字段类型(ip,port,title,country,province,city,owner,time,ssldomain)，-o/--output 支持将搜索结果导出至文件，-f 可以自定义正则表达式去匹配返回数据中的内容并高亮显示。
--e --end_time 搜索结束时间 -s --start-time 搜索开始时间。指定某段时间内返回的数据。
--u --upload 上传一个 IP 列表(不超过 1000 条)，进行批量查询。
-
-##### Example
-
-```
-╰─>$ ./quake search -q query.txt -o result.txt
-[+] Search with ip:"122.xxx.xxx.6" OR domain:"xxxxx.com"
-[+] Data time again 2021-09-19 18:12:31 to 2022-09-19 18:12:31.
-[+] Successful.
-[+] count: 10   total: 15385
-[+] Successfully saved 10 pieces of data to result.txt
-```
-
-```
-╰─>$ ./quake search -u ips.txt
-[+] Search for 44 IPs
-[+] Successful.
-[+] count: 10  total: 81
-165.229.11.173 443
-123.194.137.183 80
-123.194.137.183 443
-112.90.184.180 8443
-112.90.184.180 8081
-106.75.10.72 443
-112.90.184.180 27017
-165.229.11.173 80
-123.194.137.183 1723
-123.194.137.183 23
-```
-
-```
-╰─>$ ./quake search 'port:80' -e 2022-01-01 -s 2011-01-01
-[+] Search with port:80
-[+] Successful.
-[+] count: 10  total: 118182073
-185.8.172.250 80
-142.111.218.92 80
-142.111.241.223 80
-185.8.100.216 80
-217.62.137.0 80
-217.58.176.17 80
-179.43.148.203 80
-185.69.223.29 80
-185.69.240.170 80
-217.31.44.144 80
-```
-
-```bash
-┬─[kali@kali:~/q/t/release]─[09:47:10 PM]─[G:master=]
-╰─>$ ./quake search 'app:"exchange 2010"' -t ip,port,title
-[+] Search with app:"exchange 2010"
-[+] Successful.
-[+] count: 10   total: 75905
-216.31.255.176  443     Outlook Web App
-216.196.183.114 443     Outlook Web App
-200.70.57.149   443     Outlook Web App
-95.0.14.166     443     Outlook Web App
-31.13.16.76     443     Outlook Web App
-178.249.68.117  443     Outlook Web App
-212.192.35.55   443     Outlook Web App
-188.165.67.142  443     Outlook Web App
-23.28.247.211   443     Outlook Web App
-182.93.16.236   443     Outlook Web App
-```
-
-查看 ssl 证书中的 Common Name（包含域名等信息）。
-
-```bash
-┬─[kali@kali:~/quake_rs]─[02:29:15 AM]─[G:master=]
-╰─>$ quake search 'app:"Exchange邮件服务器" AND port:443' -t ip,port,ssldomain
-[+] Search with app:"Exchange邮件服务器" AND port:443
-[+] Successful.
-[+] count: 10   total: 1802535
-192.67.33.101   443     mail.esolutionsgroup.ca
-136.243.51.125  443     mail.misotextile.com
-185.214.232.134 443     *.sued.cloud
-128.204.218.20  443     www.cfg.com.ua
-174.47.121.211  443     owa.dsb-cpa.com
-67.134.230.115  443     mymail.swlaw.com
-177.107.171.5   443     webmail.bottero.net
-12.24.24.202    443     mail.haaskennedy.com
-220.128.255.59  443     TWSRVEXCHANGE01.imlauto.com.tw
-77.94.137.35    443     m.iscar.si
-```
-
-正则表达式可以灵活运用，匹配想匹配的任何数据。
-正则匹配 exchange 内部版本。
-
-```bash
-┬─[kali@kali:~/q/t/release]─[09:47:32 PM]─[G:master=]
-╰─>$ ./quake search 'app:"exchange 2010"' -t ip,port,title -f "X-OWA-Version: (.*)"
-[+] Search with app:"exchange 2010"
-[+] Successful.
-[+] count: 10   total: 75905
-216.31.255.176  443     Outlook Web App X-OWA-Version: 14.3.361.1
-216.196.183.114 443     Outlook Web App X-OWA-Version: 14.3.123.3
-200.70.57.149   443     Outlook Web App X-OWA-Version: 14.3.352.0
-95.0.14.166     443     Outlook Web App X-OWA-Version: 14.3.487.0
-31.13.16.76     443     Outlook Web App X-OWA-Version: 14.3.468.0
-178.249.68.117  443     Outlook Web App X-OWA-Version: 14.3.439.0
-212.192.35.55   443     Outlook Web App X-OWA-Version: 14.3.415.0
-188.165.67.142  443     Outlook Web App X-OWA-Version: 14.3.487.0
-23.28.247.211   443     Outlook Web App X-OWA-Version: 14.3.409.0
-182.93.16.236   443     Outlook Web App X-OWA-Version: 14.3.487.0
-```
-
-```
-┬─[kali@kali:~/q/t/release]─[02:06:45 AM]─[G:master=]
-╰─>$ ./quake search 'response:"CobaltStrike Beacon configurations"' -t ip,port,title -f "C2 Server: (.*)"
-[+] Search with response:"CobaltStrike Beacon configurations"
-[+] Successful.
-[+] count: 10   total: 4424
-155.94.135.156  8080            C2 Server: 204.44.85.4,/pixel.gif
-124.70.1.140    8081            C2 Server: 124.70.1.140,/dpixel
-47.101.147.201  8080            C2 Server: 47.101.147.201,/updates.rss
-47.104.108.112  8080            C2 Server: 47.104.108.112,/j.ad
-39.100.147.159  8080            C2 Server: 39.100.147.159,/__utm.gif
-18.166.76.239   8080            C2 Server: 18.166.76.239,/visit.js
-49.233.155.141  7001            C2 Server: 49.233.155.141,/ca
-47.56.224.63    8888            C2 Server: 47.56.224.63,/updates
-47.75.55.181    8443            C2 Server: 47.75.55.181,/fwlink
-34.97.55.204    8080            C2 Server: 34.97.55.204,/pixel
-```
-
-#### 4. 用户信息
-
-可以查看用户信息
-
-```
-┬─[kali@kali:~]─[03:51:18 AM]
-╰─>$ quake info
-[+] Successful.
-[+] 用户名:  XXXX
-[+] 邮  箱:  user@example.com
-[+] 手  机:  +xx xxxxxxxxxxx
-[+] 月度积分: 3000
-[+] 长效积分: 3000
-[+] 角  色:  注册用户
-```
-
-#### 5. 蜜罐识别
-
-可以识别部分蜜罐系统。
-
-```
-┬─[kali@kali:~]─[04:40:00 AM]
-╰─>$ quake honeypot 93.89.146.23
-[+] Search with 93.89.146.23
-[!] Looks like a Kojoney SSH  honeypot system!
-```
-
-#### 6.gpt 功能
-
-用之前请初始化 chatgpt api
-可以自动对用户输入文字转换成 quake 语法进行查询(训练模型测试阶段，不一定 100%得到想要结果，欢迎随时提供反馈。)
-
-```bash
-quake gpt 搜索返回包里里面有admin
-[+] Successfully converted the quake language method:"\"response: admin\""
-[+] Search with response: admin
-[+] Data time again 2022-05-08 17:44:44 to 2023-05-08 17:44:44.
-[+] Successful.
-[+] count: 10   total: 227993117
-111.203.246.108 8080
-54.66.65.139    443
-75.119.198.108  443
-176.119.46.218  8443
-42.119.8.33     443
-121.4.104.119   443
-104.236.75.242  443
-77.240.51.12    443
-185.232.64.169  80
-3.8.229.153     443
-```
-
-```bash
-quake gpt 来一打中国江西apahce服务器数据
-[+] Successfully converted the quake language method:"app:\"Apache\" and country_cn:\"中国\" and province_cn:\"江西\" --size 12"
-[+] Search with app:Apache and country_cn:中国 and province_cn:江西
-[+] Data time again 2022-05-08 18:03:26 to 2023-05-08 18:03:26.
-[+] Successful.
-[+] count: 12   total: 353958
-59.63.205.75    4430
-218.87.21.99    80
-220.176.172.10  8888
-202.109.189.6   443
-218.65.105.57   80
-117.44.244.40   443
-59.52.176.105   8443
-218.65.83.118   80
-218.65.83.117   80
-218.64.216.156  443
-223.83.101.145  8008
-182.106.129.236 18080
-```
-
-```bash
-quake.exe gpt 来20个不要来自台湾的apahce服务器数据从2022年1月到2023年1月
-[+] Successfully converted the quake language method:"country_cn: \"中国\" and not province_cn: \"台湾省\" and app:\"Apache\" and --time_start 2022-01 --time_end 2023-01 --size 20"
-[+] Search with country_cn: 中国 and not province_cn: 台湾省 and app:Apache
-[+] Data time again 2022-01 to 2023-01.
-[+] Successful.
-[+] count: 20   total: 42349791
-222.128.9.96    5000
-111.50.25.25    49502
-210.177.196.61  5000
-124.129.43.7    8443
-47.104.37.105   8480
-39.105.219.31   8480
-111.42.197.143  5000
-123.56.25.69    30010
-175.178.251.43  443
-114.84.245.185  8443
-42.98.146.196   8480
-218.65.105.60   8480
-39.104.166.253  8480
-47.104.38.119   5986
-47.104.38.144   5986
-182.92.74.134   8480
-219.132.77.211  5000
-60.176.203.189  5000
-183.192.203.34  10017
-118.190.217.243 30010
-```
-
-```bash
-quake.exe gpt 来20个河南的linux服务器数据从2021年到2022年导出到当前目录下a.txt
-[+] Successfully converted the quake language method:"province_cn:\"河南省\" and os:\"Linux\" and --time_start 2021-01 --time_end 2022-12 --size 20 --output ./a.txt"
-[+] Search with province_cn:河南省 and os:Linux
-[+] Data time again 2021-01 to 2022-12.
-[+] Successful.
-[+] count: 20   total: 877397
-[+] Successfully saved 20 pieces of data to ./a.txt
-```
+许可证见 [Apache-2.0](LICENSE)。

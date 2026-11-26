@@ -1,0 +1,25 @@
+[package]
+name = "quake"
+version = "3.1.1"
+authors = ["360 Quake Team <quake@360.cn>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "^0.12.15", features = ["blocking", "json"] }
+serde = { version = "^1.0.219", features = ["derive"] }
+serde_json = "^1.0.140"
+clap = {version="^3.2.23", features=["cargo", "derive"]}
+dirs = "^6.0.0"
+log = "^0.4.27"
+env_logger = "^0.11.6"
+ansi_term = "^0.12.1"
+chrono = "^0.4.41"
+regex = "^1.11.1"
+ipaddress = "^0.1.1"
+
+[profile.release]
+lto = true
+opt-level = 'z'
+codegen-units = 1

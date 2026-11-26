@@ -1,0 +1,5 @@
+/target
+.idea/
+todo.md
+*.txt
+/node_modules

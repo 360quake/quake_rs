@@ -1,23 +1,23 @@
 [package]
-name = "quake"
-version = "3.1.1"
-authors = ["360 Quake Team <quake@360.cn>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "quake-mcp"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "A local MCP server for read-only 360 Quake asset queries"
 
 [dependencies]
-reqwest = { version = "^0.12.15", features = ["blocking", "json"] }
-serde = { version = "^1.0.219", features = ["derive"] }
-serde_json = "^1.0.140"
-clap = {version="^3.2.23", features=["cargo", "derive"]}
-dirs = "^6.0.0"
-log = "^0.4.27"
-env_logger = "^0.11.6"
-ansi_term = "^0.12.1"
-chrono = "^0.4.41"
-regex = "^1.11.1"
-ipaddress = "^0.1.1"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+httpdate = "1"
+reqwest = { version = "0.12.28", default-features = false, features = ["default-tls", "json"] }
+rmcp = { version = "=3.11.0", features = ["transport-io"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["process", "time"] }
+wiremock = "0.6"
 
 [profile.release]
 lto = true
